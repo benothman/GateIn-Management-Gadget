@@ -39,32 +39,7 @@
             <groupId>org.gatein.management.portalobjects</groupId>
             <artifactId>portalobjects-exportimport</artifactId>
             <version>1.0.0-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>xercesImpl</artifactId>
-                    <groupId>apache-xerces</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>xercesImpl</artifactId>
-                    <groupId>xerces</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>xml-apis</artifactId>
-                    <groupId>apache-xerces</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>xpp3_min</artifactId>
-                    <groupId>xpp3</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>xpp3</artifactId>
-                    <groupId>xpp3</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>exo.core.component.database</artifactId>
-                    <groupId>org.exoplatform.core</groupId>
-                </exclusion>
-            </exclusions>
+            <scope>provided</scope>
         </dependency>
         
     </dependencies>
