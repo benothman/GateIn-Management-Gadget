@@ -20,7 +20,6 @@ package org.gatein.management.client;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
@@ -41,19 +40,17 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
+import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.StackPanel;
 import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.Tree;
@@ -100,85 +97,119 @@ public class Application extends Gadget<UserPreferences> {
         DecoratedTabPanel decoratedTabPanel = new DecoratedTabPanel();
         decoratedTabPanel.setAnimationEnabled(true);
         rootPanel.add(decoratedTabPanel, 10, 10);
-        decoratedTabPanel.setSize("790px", "383px");
+        decoratedTabPanel.setSize("870px", "477px");
 
-        DockLayoutPanel dockLayoutPanel = new DockLayoutPanel(Unit.EM);
-        dockLayoutPanel.setSize("773px", "340px");
-        StackPanel stackPanel = new StackPanel();
-        dockLayoutPanel.addWest(stackPanel, 12.5);
+        AbsolutePanel absolutePanel = new AbsolutePanel();
+        absolutePanel.setSize("847px", "425px");
 
-        decoratedTabPanel.add(dockLayoutPanel, "Export file/app", false);
-        stackPanel.setSize("98%", "95%");
+        DecoratorPanel decoratorPanelWest = new DecoratorPanel();
+        absolutePanel.add(decoratorPanelWest, 10, 10);
+        decoratorPanelWest.setSize("240px", "400px");
+
+        AbsolutePanel absolutePanel_1 = new AbsolutePanel();
+        absolutePanel_1.setSize("230px", "395px");
+        decoratorPanelWest.setWidget(absolutePanel_1);
 
         ScrollPanel scrollPanel = new ScrollPanel();
-        stackPanel.add(scrollPanel, "Sites", false);
-        scrollPanel.setSize("100%", "100%");
-        scrollPanel.setWidget(getTree(images));
+        absolutePanel_1.add(scrollPanel, 10, 10);
+        scrollPanel.setSize("210px", "375px");
 
-        StackPanel stackPanelEast = new StackPanel();
-        dockLayoutPanel.addEast(stackPanelEast, 9.1);
-        stackPanelEast.setSize("100%", "95%");
+        final Tree tree = getTree(images);
+        scrollPanel.setWidget(tree);
 
+        DecoratorPanel decoratorPanelCenter = new DecoratorPanel();
+        absolutePanel.add(decoratorPanelCenter, 256, 10);
+        decoratorPanelCenter.setSize("400px", "402px");
+
+        AbsolutePanel treeAbsolutePanel = new AbsolutePanel();
+        treeAbsolutePanel.setSize("97%", "100%");
+
+        this.header = new HTML("Select an item");
+        this.header.setDirectionEstimator(true);
+        treeAbsolutePanel.add(this.header, 10, 10);
+        this.header.setSize("450px", "50px");
+
+        this.details = new HTML("No item selected");
+        treeAbsolutePanel.add(this.details, 10, 76);
+        this.details.setSize("450px", "156px");
+
+        HTML html = new HTML("<hr />", true);
+        treeAbsolutePanel.add(html, 10, 43);
+        html.setSize("380px", "14px");
+
+        Button exportButton = new Button("Export site");
+        exportButton.addClickHandler(new ClickHandler() {
+
+            public void onClick(ClickEvent event) {
+                TreeItem selected = tree.getSelectedItem();
+                if (selected != null) {
+                    TreeNode tn = (TreeNode) selected.getUserObject();
+                    if (tn.isExportable()) {
+                        final String type = tn.getType();
+                        final String name = tn.getSiteName();
+                        gtnService.exportSite(type, name, new AsyncCallback<Void>() {
+
+                            public void onFailure(Throwable caught) {
+                                Window.alert("Operation failed!<br/>" + caught);
+                            }
+
+                            public void onSuccess(Void result) {
+                                Window.alert("The site[type:" + type + ", name:" + name + "] was exported with success!");
+                            }
+                        });
+                    } else {
+                        Window.alert("The selected node is not exportable!");
+                    }
+                }
+            }
+        });
+
+        treeAbsolutePanel.add(exportButton, 10, 359);
+        decoratorPanelCenter.setWidget(treeAbsolutePanel);
+        treeAbsolutePanel.setSize("400px", "393px");
+
+        DecoratorPanel decoratorPanelEast = new DecoratorPanel();
+        absolutePanel.add(decoratorPanelEast, 672, 10);
+        decoratorPanelEast.setSize("165px", "405px");
         AbsolutePanel absolutePanelImportLink = new AbsolutePanel();
-        stackPanelEast.add(absolutePanelImportLink, "Import", false);
-        absolutePanelImportLink.setSize("95%", "100%");
+        absolutePanelImportLink.setSize("162px", "395px");
 
         final Anchor importAnchor = new Anchor("Import file");
         //importAnchor.setDirectionEstimator(true);
         absolutePanelImportLink.add(importAnchor, 10, 10);
         importAnchor.setWidth("90%");
 
-        StackPanel stackPanelCenter = new StackPanel();
-        dockLayoutPanel.add(stackPanelCenter);
-        stackPanelCenter.setSize("99%", "95%");
+        decoratorPanelEast.setWidget(absolutePanelImportLink);
 
-        AbsolutePanel absolutePanel = new AbsolutePanel();
-        stackPanelCenter.add(absolutePanel, "Item details", false);
-        absolutePanel.setSize("97%", "100%");
-
-        Label label = new Label("Select an item");
-        label.setDirectionEstimator(true);
-        absolutePanel.add(label, 10, 10);
-        label.setSize("450px", "50px");
-
-        InlineLabel inlineLabel = new InlineLabel("No item selected");
-        absolutePanel.add(inlineLabel, 10, 76);
-        inlineLabel.setSize("450px", "156px");
-
-        HTML html = new HTML("<hr />", true);
-        absolutePanel.add(html, 10, 43);
-        html.setWidth("100%");
-
-        Button button = new Button("Export site");
-        absolutePanel.add(button, 10, 245);
+        decoratedTabPanel.add(absolutePanel, "Export file/app", false);
 
         AbsolutePanel userManagementPanel = new AbsolutePanel();
         decoratedTabPanel.add(userManagementPanel, "User management", false);
         userManagementPanel.setSize("99%", "304px");
 
-        Label label_1 = new Label("Enter a user name:");
-        label_1.setDirectionEstimator(true);
-        userManagementPanel.add(label_1, 10, 10);
-        label_1.setSize("746px", "38px");
+        Label usernameLabel = new Label("Enter a user name:");
+        usernameLabel.setDirectionEstimator(true);
+        userManagementPanel.add(usernameLabel, 10, 10);
+        usernameLabel.setSize("746px", "38px");
 
         SuggestBox suggestBox = new SuggestBox();
         userManagementPanel.add(suggestBox, 10, 40);
         suggestBox.setSize("215px", "13px");
 
-        AbsolutePanel absolutePanel_1 = new AbsolutePanel();
-        decoratedTabPanel.add(absolutePanel_1, "Dialog Box", false);
-        absolutePanel_1.setSize("400px", "250px");
+        AbsolutePanel dialBoxAbsolutePanel = new AbsolutePanel();
+        decoratedTabPanel.add(dialBoxAbsolutePanel, "Dialog Box", false);
+        dialBoxAbsolutePanel.setSize("400px", "250px");
 
-        Label label_2 = new Label("Select a site to import");
-        label_2.setDirectionEstimator(true);
-        absolutePanel_1.add(label_2, 10, 10);
-        label_2.setSize("380px", "30px");
+        Label dboxLabel = new Label("Select a site to import");
+        dboxLabel.setDirectionEstimator(true);
+        dialBoxAbsolutePanel.add(dboxLabel, 10, 10);
+        dboxLabel.setSize("380px", "30px");
 
         FileUpload fileUpload = new FileUpload();
-        absolutePanel_1.add(fileUpload, 10, 153);
+        dialBoxAbsolutePanel.add(fileUpload, 10, 153);
 
         Button button_1 = new Button("Upload");
-        absolutePanel_1.add(button_1, 257, 151);
+        dialBoxAbsolutePanel.add(button_1, 257, 151);
 
         final DialogBox dialogBox = createDialogBox();
         importAnchor.addClickHandler(new ClickHandler() {
@@ -190,9 +221,7 @@ public class Application extends Gadget<UserPreferences> {
             }
         });
 
-
         decoratedTabPanel.selectTab(0);
-
     }
 
     /**
@@ -200,10 +229,11 @@ public class Application extends Gadget<UserPreferences> {
      * @return
      */
     private DialogBox createDialogBox() {
-        // Create a dialog box and set the caption text
+        // Create a dialog box
         final DialogBox dialogBox = new DialogBox();
-        dialogBox.ensureDebugId("cwDialogBox");
         dialogBox.setText("Import site");
+        dialogBox.setAnimationEnabled(true);
+        dialogBox.setModal(true);
 
         // Create a table to layout the content
         VerticalPanel dialogContents = new VerticalPanel();
@@ -260,6 +290,7 @@ public class Application extends Gadget<UserPreferences> {
         tree.setSize("100%", "100%");
         //final TreeItem rootItem = tree.addItem(getItemString("Sites", resources.treeRoot()));
         final TreeItem rootItem = new TreeItem("Sites");
+        rootItem.setUserObject(new TreeNode("Sites"));
         tree.addItem(rootItem);
 
         gtnService.getRootNodes(new AsyncCallback<List<TreeNode>>() {

@@ -38,9 +38,12 @@ public class TreeNode implements Serializable {
     private static final long serialVersionUID = 1L;
     private List<TreeNode> children;
     private String text;
+    private String type;
+    private String siteName;
     private String nodeInfo;
-    private int type;
     private String path;
+    private boolean updated = false;
+    private boolean exportable;
 
     /**
      * Create a new instance of {@code TreeNode}
@@ -138,14 +141,14 @@ public class TreeNode implements Serializable {
     /**
      * @return the type
      */
-    public int getType() {
+    public String getType() {
         return type;
     }
 
     /**
      * @param type the type to set
      */
-    public void setType(int type) {
+    public void setType(String type) {
         this.type = type;
     }
 
@@ -161,5 +164,47 @@ public class TreeNode implements Serializable {
      */
     public void setPath(String path) {
         this.path = path;
+    }
+
+    /**
+     * @return the updated
+     */
+    public boolean isUpdated() {
+        return updated;
+    }
+
+    /**
+     * @param updated the updated to set
+     */
+    public void setUpdated(boolean updated) {
+        this.updated = updated;
+    }
+
+    /**
+     * @return the siteName
+     */
+    public String getSiteName() {
+        return siteName;
+    }
+
+    /**
+     * @param siteName the siteName to set
+     */
+    public void setSiteName(String siteName) {
+        this.siteName = siteName;
+    }
+
+    /**
+     * @return the exportable
+     */
+    public boolean isExportable() {
+        return exportable;
+    }
+
+    /**
+     * @param exportable the exportable to set
+     */
+    public void setExportable(boolean exportable) {
+        this.exportable = exportable;
     }
 }

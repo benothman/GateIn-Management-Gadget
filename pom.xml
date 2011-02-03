@@ -31,10 +31,8 @@
             <version>${gwt.gadget.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- Dependencies for GateIn specific classes -->
 
         <!-- Gatein Management -->
-
         <dependency>
             <groupId>org.gatein.management.portalobjects</groupId>
             <artifactId>portalobjects-exportimport</artifactId>

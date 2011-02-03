@@ -22,9 +22,11 @@ import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.fileupload.FileItem;
@@ -32,12 +34,10 @@ import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
+import org.exoplatform.portal.config.model.PortalConfig;
 import org.gatein.management.client.GateInService;
 import org.gatein.management.client.TreeNode;
 import org.gatein.management.server.util.PortalService;
-import org.gatein.mop.api.workspace.Navigation;
-import org.gatein.mop.api.workspace.ObjectType;
-import org.gatein.mop.api.workspace.Page;
 import org.gatein.mop.api.workspace.Site;
 
 /**
@@ -52,9 +52,6 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
 
     private static final String UPLOAD_DIRECTORY = "/tmp/";
     private static final Logger logger = Logger.getLogger(GateInService.class.getName());
-    public static final int PORTAL_SITES_INDEX = 0;
-    public static final int GROUP_SITES_INDEX = 1;
-    public static final int USER_SITES_INDEX = 2;
 
     /**
      * Create a new instance of {@code GateInServiceImpl}
@@ -70,10 +67,9 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
      */
     public TreeNode updateItem(TreeNode tn) {
         String name = tn.getText();
-        ObjectType<Site> type = getSiteType(tn.getType());
         PortalService portalService = PortalService.getInstance();
-        
 
+        // TODO
 
 
         return tn;
@@ -156,17 +152,17 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
 
         PortalService portalService = PortalService.getInstance();
 
-        Collection<Site> portalSites = portalService.getSites(ObjectType.PORTAL_SITE);
-        Collection<Site> groupSites = portalService.getSites(ObjectType.GROUP_SITE);
-        //Collection<Site> userSites = portalService.getSites(ObjectType.USER_SITE);
+        Collection<PortalConfig> portalSites = portalService.getPortalConfigs(PortalConfig.PORTAL_TYPE);
+        Collection<PortalConfig> groupSites = portalService.getPortalConfigs(PortalConfig.GROUP_TYPE);
+        Collection<PortalConfig> userSites = portalService.getPortalConfigs(PortalConfig.USER_TYPE);
         // create root nodes
-        TreeNode portalNode = getRootNode("Portal sites", PORTAL_SITES_INDEX, portalSites);
-        TreeNode groupNode = getRootNode("Group sites", GROUP_SITES_INDEX, groupSites);
-        //TreeNode userNode = getRootNode("User sites", USER_SITES_INDEX, userSites);
+        TreeNode portalNode = getRootNode(PortalConfig.PORTAL_TYPE, "Portal sites", portalSites);
+        TreeNode groupNode = getRootNode(PortalConfig.GROUP_TYPE, "Group sites", groupSites);
+        TreeNode userNode = getRootNode(PortalConfig.USER_TYPE, "User sites", userSites);
         List<TreeNode> nodes = new ArrayList<TreeNode>();
         nodes.add(portalNode);
         nodes.add(groupNode);
-        //nodes.add(userNode);
+        nodes.add(userNode);
 
         return nodes;
     }
@@ -174,22 +170,28 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
     /**
      *
      * @param name
-     * @param sites
+     * @param configs
      * @return
      */
-    private TreeNode getRootNode(String name, int index, Collection<Site> sites) {
+    private TreeNode getRootNode(String type, String name, Collection<PortalConfig> configs) {
 
         TreeNode tn = new TreeNode(name);
-        tn.setType(index);
-        for (Site site : sites) {
-            TreeNode child = new TreeNode(site.getName());
-            child.setType(index);
-            String info = "<ul>";
-            Page rootPage = site.getRootPage();
-            Navigation navigation = site.getRootNavigation();
-            info += "<li> Root page : " + rootPage.getName() + "</li>";
-            info += "<li> Root navigation : " + navigation.getName() + "</li>";
-            child.setNodeInfo(info + "</ul>");
+        tn.setType(type);
+        for (PortalConfig pc : configs) {
+            TreeNode child = new TreeNode(pc.getName());
+            child.setType(type);
+            child.setExportable(true);
+            StringBuilder sb = new StringBuilder("<ul>");
+            sb.append("<li> Name : ").append(pc.getName()).append("</li>");
+            sb.append("<li> Type : ").append(pc.getType()).append("</li>");
+            sb.append("<li> Skin : ").append(pc.getSkin()).append("</li>");
+            sb.append("<li> Edit permission : ").append(pc.getEditPermission()).append("</li>");
+            sb.append("<li> Access permissions : <ul>");
+            for (String s : pc.getAccessPermissions()) {
+                sb.append("<li>").append(s).append("</li>");
+            }
+            sb.append("</ul></li></ul>");
+            child.setNodeInfo(sb.toString());
             tn.addChild(child);
         }
 
@@ -198,38 +200,23 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
 
     /**
      * 
-     * @param index
-     * @return
+     * @param type
+     * @param name
      */
-    private ObjectType<Site> getSiteType(int index) {
-        switch (index) {
-            case PORTAL_SITES_INDEX:
-                return ObjectType.PORTAL_SITE;
-            case GROUP_SITES_INDEX:
-                return ObjectType.GROUP_SITE;
-            case USER_SITES_INDEX:
-                return ObjectType.USER_SITE;
-            default:
-                return null;
+    public void exportSite(String type, String name) {
+        PortalService portalService = PortalService.getInstance();
+
+        try {
+            OutputStream os = getThreadLocalResponse().getOutputStream();
+            portalService.exportSite(type, name, os);
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, "Error while exporting site : type = {0}, name = {1}, error message = {2}",
+                    new String[]{type, name, ex.getMessage()});
+            ex.printStackTrace();
         }
     }
 
-    /**
-     * 
-     * @param type
-     * @return
-     */
-    private int getSiteTypeIndex(ObjectType<Site> type) {
-        if (type == ObjectType.PORTAL_SITE) {
-            return PORTAL_SITES_INDEX;
-        }
-        if (type == ObjectType.GROUP_SITE) {
-            return GROUP_SITES_INDEX;
-        }
-        if (type == ObjectType.USER_SITE) {
-            return USER_SITES_INDEX;
-        }
-
-        return 0;
+    public void importSite(Site site) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

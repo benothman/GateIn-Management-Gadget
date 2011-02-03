@@ -64,4 +64,13 @@ public interface GateInServiceAsync {
      * @param asyncCallback
      */
     public void getRootNodes(AsyncCallback<List<TreeNode>> asyncCallback);
+
+    /**
+     * 
+     * @param type
+     * @param name
+     * @param asyncCallback
+     */
+    public void exportSite(String type, String name, AsyncCallback<Void> asyncCallback);
+
 }
