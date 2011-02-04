@@ -20,20 +20,15 @@ package org.gatein.management.server;
 
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.FilenameUtils;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.gatein.management.client.GateInService;
 import org.gatein.management.client.TreeNode;
@@ -50,7 +45,6 @@ import org.gatein.mop.api.workspace.Site;
  */
 public class GateInServiceImpl extends RemoteServiceServlet implements GateInService {
 
-    private static final String UPLOAD_DIRECTORY = "/tmp/";
     private static final Logger logger = Logger.getLogger(GateInService.class.getName());
 
     /**
@@ -97,55 +91,6 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
     /**
      * 
      * @return
-     */
-    public String upload() throws Exception {
-        HttpServletRequest request = getThreadLocalRequest();
-
-        // process only multipart requests
-        if (ServletFileUpload.isMultipartContent(request)) {
-
-            // Create a factory for disk-based file items
-            FileItemFactory factory = new DiskFileItemFactory();
-
-            // Create a new file upload handler
-            ServletFileUpload upload = new ServletFileUpload(factory);
-
-            // Parse the request
-            try {
-                List<FileItem> items = upload.parseRequest(request);
-                for (FileItem item : items) {
-                    // process only file upload - discard other form item types
-                    if (item.isFormField()) {
-                        continue;
-                    }
-
-                    String fileName = item.getName();
-                    // get only the file name not whole path
-                    if (fileName != null) {
-                        fileName = FilenameUtils.getName(fileName);
-                    }
-
-                    File uploadedFile = new File(UPLOAD_DIRECTORY, fileName);
-                    if (uploadedFile.createNewFile()) {
-                        item.write(uploadedFile);
-                    } else {
-                        throw new IOException("The file already exists in repository.");
-                    }
-                }
-            } catch (Exception e) {
-                return "An error occurred while creating the file : " + e.getMessage();
-            }
-
-        } else {
-            return "Request contents type is not supported by the servlet.";
-        }
-
-        return "The file has been uploaded with success";
-    }
-
-    /**
-     * 
-     * @return
      * @throws Exception
      */
     public List<TreeNode> getRootNodes() throws Exception {
@@ -181,6 +126,7 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
             TreeNode child = new TreeNode(pc.getName());
             child.setType(type);
             child.setExportable(true);
+            child.setSiteName(pc.getName());
             StringBuilder sb = new StringBuilder("<ul>");
             sb.append("<li> Name : ").append(pc.getName()).append("</li>");
             sb.append("<li> Type : ").append(pc.getType()).append("</li>");
@@ -207,8 +153,13 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
         PortalService portalService = PortalService.getInstance();
 
         try {
-            OutputStream os = getThreadLocalResponse().getOutputStream();
+            HttpServletResponse resp = getThreadLocalResponse();
+            ServletOutputStream os = resp.getOutputStream();
+            ServletContext context = getServletConfig().getServletContext();
+            resp.setContentType("application/octet-stream");
+            //resp.setContentLength((int) f.length());
             portalService.exportSite(type, name, os);
+
         } catch (IOException ex) {
             logger.log(Level.SEVERE, "Error while exporting site : type = {0}, name = {1}, error message = {2}",
                     new String[]{type, name, ex.getMessage()});

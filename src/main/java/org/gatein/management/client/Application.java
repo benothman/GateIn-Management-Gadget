@@ -42,7 +42,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
 import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.FileUpload;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -55,6 +55,11 @@ import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import gwtupload.client.IUploadStatus.Status;
+import gwtupload.client.IUploader;
+import gwtupload.client.PreloadedImage;
+import gwtupload.client.PreloadedImage.OnLoadPreloadedImageHandler;
+import gwtupload.client.SingleUploader;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -78,14 +83,15 @@ public class Application extends Gadget<UserPreferences> {
     private static final Logger logger = Logger.getLogger(Application.class.getName());
     // asycn services to get requests from the server through ajax.
     private final GateInServiceAsync gtnService = GWT.create(GateInService.class);
-    private static final String UPLOAD_ACTION_URL = GWT.getModuleBaseURL()
-            + "upload";
+    private static final String UPLOAD_ACTION_URL = GWT.getModuleBaseURL() + "upload";
+    private static final String DOWNLOAD_ACTION_URL = GWT.getModuleBaseURL() + "download";
     // gui elements
     private SelectionHandler<TreeItem> selectionHandler;
     private OpenHandler<TreeItem> openHandler;
     private CloseHandler<TreeItem> closeHandler;
     private HTML header;
     private HTML details;
+    private Anchor exportAnchor;
 
     @Override
     protected void init(UserPreferences preferences) {
@@ -93,6 +99,7 @@ public class Application extends Gadget<UserPreferences> {
 
         RootPanel rootPanel = RootPanel.get();
         rootPanel.setSize("95%", "95%");
+        rootPanel.addStyleName("rootpanelstyle");
 
         DecoratedTabPanel decoratedTabPanel = new DecoratedTabPanel();
         decoratedTabPanel.setAnimationEnabled(true);
@@ -137,6 +144,8 @@ public class Application extends Gadget<UserPreferences> {
         treeAbsolutePanel.add(html, 10, 43);
         html.setSize("380px", "14px");
 
+
+        this.exportAnchor = new Anchor("Export site", "");
         Button exportButton = new Button("Export site");
         exportButton.addClickHandler(new ClickHandler() {
 
@@ -144,7 +153,7 @@ public class Application extends Gadget<UserPreferences> {
                 TreeItem selected = tree.getSelectedItem();
                 if (selected != null) {
                     TreeNode tn = (TreeNode) selected.getUserObject();
-                    if (tn.isExportable()) {
+                    if (tn != null && tn.isExportable()) {
                         final String type = tn.getType();
                         final String name = tn.getSiteName();
                         gtnService.exportSite(type, name, new AsyncCallback<Void>() {
@@ -164,7 +173,8 @@ public class Application extends Gadget<UserPreferences> {
             }
         });
 
-        treeAbsolutePanel.add(exportButton, 10, 359);
+        //treeAbsolutePanel.add(exportButton, 10, 359);
+        treeAbsolutePanel.add(this.exportAnchor, 10, 359);
         decoratorPanelCenter.setWidget(treeAbsolutePanel);
         treeAbsolutePanel.setSize("400px", "393px");
 
@@ -194,8 +204,9 @@ public class Application extends Gadget<UserPreferences> {
 
         SuggestBox suggestBox = new SuggestBox();
         userManagementPanel.add(suggestBox, 10, 40);
-        suggestBox.setSize("215px", "13px");
+        suggestBox.setSize("215px", "20px");
 
+        /*
         AbsolutePanel dialBoxAbsolutePanel = new AbsolutePanel();
         decoratedTabPanel.add(dialBoxAbsolutePanel, "Dialog Box", false);
         dialBoxAbsolutePanel.setSize("400px", "250px");
@@ -210,6 +221,7 @@ public class Application extends Gadget<UserPreferences> {
 
         Button button_1 = new Button("Upload");
         dialBoxAbsolutePanel.add(button_1, 257, 151);
+        */
 
         final DialogBox dialogBox = createDialogBox();
         importAnchor.addClickHandler(new ClickHandler() {
@@ -241,17 +253,45 @@ public class Application extends Gadget<UserPreferences> {
         dialogBox.setWidget(dialogContents);
 
         // Add some text to the top of the dialog
-        HTML boxDetails = new HTML("Details");
-        dialogContents.add(boxDetails);
-        dialogContents.setCellHorizontalAlignment(
-                boxDetails, HasHorizontalAlignment.ALIGN_CENTER);
 
-        // Add an image to the dialog
+        final FlowPanel panelImages = new FlowPanel();
+        final OnLoadPreloadedImageHandler showImage = new OnLoadPreloadedImageHandler() {
+
+            public void onLoad(PreloadedImage img) {
+
+                img.setWidth("75px");
+                panelImages.add(img);
+            }
+        };
+        IUploader.OnFinishUploaderHandler onFinishUploaderHandler = new IUploader.OnFinishUploaderHandler() {
+
+            public void onFinish(IUploader uploader) {
+                if (uploader.getStatus() == Status.SUCCESS) {
+                    //new PreloadedImage(uploader.fileUrl(), showImage);
+                }
+            }
+        };
+
+        SingleUploader singleUploader = new SingleUploader();
+        singleUploader.setServletPath(UPLOAD_ACTION_URL);
+        singleUploader.addOnFinishUploadHandler(onFinishUploaderHandler);
+
+        //HTML boxDetails = new HTML("Details");
+        //dialogContents.add(boxDetails);
+        //dialogContents.setCellHorizontalAlignment(
+        //      singleUploader, HasHorizontalAlignment.ALIGN_CENTER);
+
+        dialogContents.add(singleUploader);
+        //dialogContents.add(panelImages);
+
+
         AbsolutePanel absolutePanel = new AbsolutePanel();
         absolutePanel.setSize("400px", "300px");
         dialogContents.add(absolutePanel);
         dialogContents.setCellHorizontalAlignment(
                 absolutePanel, HasHorizontalAlignment.ALIGN_CENTER);
+
+        absolutePanel.add(panelImages);
 
         // Add a close button at the bottom of the dialog
         Button closeButton = new Button("Close", new ClickHandler() {
@@ -270,9 +310,7 @@ public class Application extends Gadget<UserPreferences> {
                     closeButton, HasHorizontalAlignment.ALIGN_RIGHT);
         }
 
-        // Return the dialog box
         return dialogBox;
-
     }
 
     /**
@@ -357,6 +395,14 @@ public class Application extends Gadget<UserPreferences> {
                     TreeNode node = (TreeNode) item.getUserObject();
                     Application.this.header.setHTML(node.getPath());
                     Application.this.details.setHTML(node.getNodeInfo());
+
+                    if (node.isExportable()) {
+                        String href = DOWNLOAD_ACTION_URL + "?ownerType=" + node.getType() + "&ownerId=" + node.getSiteName();
+                        Application.this.exportAnchor.setHref(href);
+                        Application.this.exportAnchor.setEnabled(true);
+                    } else {
+                        Application.this.exportAnchor.setEnabled(false);
+                    }
                 }
             };
         }

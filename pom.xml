@@ -31,6 +31,12 @@
             <version>${gwt.gadget.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.googlecode.gwtupload</groupId>
+            <artifactId>gwtupload</artifactId>
+            <version>0.6.3-compat</version>
+        </dependency>
+
 
         <!-- Gatein Management -->
         <dependency>
@@ -96,6 +102,10 @@
                 <enabled>true</enabled>
                 <updatePolicy>never</updatePolicy>
             </snapshots>
+        </repository>
+        <repository>
+            <id>gwtupload</id>
+            <url>http://gwtupload.googlecode.com/svn/mavenrepo/</url>
         </repository>
     </repositories>
 

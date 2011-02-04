@@ -88,6 +88,7 @@ public final class PortalService {
         this.dataStorage = (DataStorage) container.getComponentInstanceOfType(DataStorage.class);
         this.exportHandler = (ExportHandler) container.getComponentInstanceOfType(ExportHandler.class);
         this.importHandler = (ImportHandler) container.getComponentInstanceOfType(ImportHandler.class);
+
     }
 
     /**
@@ -266,6 +267,7 @@ public final class PortalService {
             context.addToContext(navigation);
         }
 
+        // export the site
         this.exportHandler.exportContext(context, os);
     }
 

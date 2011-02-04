@@ -57,12 +57,6 @@ public interface GateInServiceAsync {
      * 
      * @param asyncCallback
      */
-    public void upload(AsyncCallback<String> asyncCallback);
-
-    /**
-     * 
-     * @param asyncCallback
-     */
     public void getRootNodes(AsyncCallback<List<TreeNode>> asyncCallback);
 
     /**

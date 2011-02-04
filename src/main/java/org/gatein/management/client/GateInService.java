@@ -56,13 +56,6 @@ public interface GateInService extends RemoteService {
     public String updateNodeInfo(TreeNode item) throws Exception;
 
     /**
-     *
-     * @return
-     * @throws Exception
-     */
-    public String upload() throws Exception;
-
-    /**
      * 
      * @return
      * @throws Exception
