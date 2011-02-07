@@ -61,6 +61,7 @@ public final class PortalService {
             return new PortalService();
         }
     };
+    private ExoContainer container;
     private DataStorage dataStorage;
     private ExportHandler exportHandler;
     private ImportHandler importHandler;
@@ -79,12 +80,9 @@ public final class PortalService {
      * @throws Exception
      */
     protected void initService() {
-        //ExoContainer exoContainer = ExoContainerContext.getCurrentContainer();
-        ExoContainer container = PortalContainer.getInstance();
-        POMSessionManager mgr = (POMSessionManager) container.getComponentInstanceOfType(POMSessionManager.class);
-        if (mgr.getSession() == null) {
-            mgr.openSession();
-        }
+        //this.container = ExoContainerContext.getCurrentContainer();
+        this.container = PortalContainer.getInstance();
+        this.checkSession();
         this.dataStorage = (DataStorage) container.getComponentInstanceOfType(DataStorage.class);
         this.exportHandler = (ExportHandler) container.getComponentInstanceOfType(ExportHandler.class);
         this.importHandler = (ImportHandler) container.getComponentInstanceOfType(ImportHandler.class);
@@ -99,33 +97,9 @@ public final class PortalService {
     }
 
     /**
-     * Retrieve the list of sites corresponding to the given type
-     *
-     * @param type The sites type
-     * @return The list of sites corresponding to the given type
-     */
-    public List<Site> getSites(String type) {
-
-        List<Site> sites = new ArrayList<Site>();
-        try {
-            List<Page> pages = getPages(type);
-
-            for (Page page : pages) {
-            }
-
-            Query<Site> query = new Query<Site>(type, null, Site.class);
-            LazyPageList<Site> results = dataStorage.find(query);
-        } catch (Exception exp) {
-            logger.log(Level.SEVERE, "Retrieving the list of sites for type {0} -> Exception " + exp.getMessage(), type.toString());
-        }
-
-        return sites;
-    }
-
-    /**
      * Retrieve the {@code PortalConfig} having the given type
      *
-     * @param type The type of {@code PortalConfig}
+     * @param type The type of {@code PortalConfig} (ownerType)
      * @return a collection of {@code PortalConfig}
      */
     public List<PortalConfig> getPortalConfigs(String type) {
@@ -133,16 +107,34 @@ public final class PortalService {
     }
 
     /**
-     * 
-     * @param type
-     * @param name
-     * @return
+     * Retrieve the list of {@code PortalConfig} having the given type and name
+     *
+     * @param type The portal type (ownerType)
+     * @param name The site name (ownerId)
+     * @return a list of {@code PortalConfig}
      */
     public List<PortalConfig> getPortalConfigs(String type, String name) {
-        Map<String, PortalConfig> pConfigs = new HashMap<String, PortalConfig>();
 
         try {
             List<Page> pages = getPages(type, name);
+            return getPortalConfigs(pages);
+        } catch (Exception exp) {
+            logger.log(Level.SEVERE, "Problem occurs when retrieving the list of sites for type {0} and name {1} -> {2}",
+                    new String[]{type, name, exp.getMessage()});
+        }
+
+        return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Retrieve the list of {@code PortalConfig} given their pages
+     * 
+     * @param pages the list of pages of a portal
+     * @return a list of {@code PortalConfig}
+     */
+    public List<PortalConfig> getPortalConfigs(List<Page> pages) {
+        Map<String, PortalConfig> pConfigs = new HashMap<String, PortalConfig>();
+        try {
             PortalConfig pc = null;
             String key = null;
             for (Page page : pages) {
@@ -154,7 +146,7 @@ public final class PortalService {
             }
             return new ArrayList<PortalConfig>(pConfigs.values());
         } catch (Exception exp) {
-            logger.log(Level.SEVERE, "Retrieving the list of sites for type {0} -> Exception " + exp.getMessage(), type.toString());
+            logger.log(Level.SEVERE, "Problem occurs when retrieving the list of sites : {0}", exp.getMessage());
         }
 
         return Collections.EMPTY_LIST;
@@ -178,6 +170,7 @@ public final class PortalService {
      * @return a collection of {@code Page}
      */
     public List<Page> getPages(String type, String name) {
+        this.checkSession();
         try {
             Query<Page> query = new Query<Page>(type, name, Page.class);
             LazyPageList<Page> results = dataStorage.find(query);
@@ -208,6 +201,7 @@ public final class PortalService {
      * @return a collection of {@code PageNavigation}
      */
     public List<PageNavigation> getPageNavigations(String type, String name) {
+        this.checkSession();
         try {
             Query<PageNavigation> query = new Query<PageNavigation>(type, name, PageNavigation.class);
             LazyPageList<PageNavigation> results = dataStorage.find(query);
@@ -233,8 +227,7 @@ public final class PortalService {
             LazyPageList<Site> results = dataStorage.find(query);
             return results.getAll().isEmpty() ? null : results.getAll().get(0);
         } catch (Exception exp) {
-            logger.log(Level.SEVERE, "Retrieving the list of sites for type {0} -> Exception " + exp.getMessage(), type.toString());
-            exp.printStackTrace();
+            logger.log(Level.SEVERE, "Retrieving the list of sites for type {0} -> Exception " + exp.getMessage(), type);
         }
 
         return null;
@@ -248,10 +241,15 @@ public final class PortalService {
      * @param os the output stream in what the export file will be written
      * @throws IOException
      */
-    public void exportSite(String type, String name, OutputStream os) throws IOException {
+    public void exportSite(String type, String name, OutputStream os) throws IOException, ProcessException {
         ExportContext context = exportHandler.createExportContext();
-        List<PortalConfig> portalConfigs = getPortalConfigs(type, name);
+
         List<Page> pages = getPages(type, name);
+        List<PortalConfig> portalConfigs = getPortalConfigs(pages);
+        if (portalConfigs.isEmpty()) {
+            throw new ProcessException("No entry with the type : " + type + " and name : " + name);
+        }
+
         List<PageNavigation> pageNavigations = getPageNavigations(type, name);
 
         // Add portal configs to the context
@@ -270,6 +268,7 @@ public final class PortalService {
 
         // export the site
         this.exportHandler.exportContext(context, os);
+
     }
 
     /**
@@ -282,5 +281,16 @@ public final class PortalService {
     public void importSite(InputStream in) throws Exception {
         ImportContext context = importHandler.createContext(in);
         this.importHandler.importContext(context);
+    }
+
+    /**
+     * Check whether the current session is null or not. If there is no session
+     * already opened, a new session will be opened.
+     */
+    protected void checkSession() {
+        POMSessionManager mgr = (POMSessionManager) this.container.getComponentInstanceOfType(POMSessionManager.class);
+        if (mgr.getSession() == null) {
+            mgr.openSession();
+        }
     }
 }

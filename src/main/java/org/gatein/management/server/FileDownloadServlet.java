@@ -20,11 +20,14 @@ package org.gatein.management.server;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.gatein.management.server.util.PortalService;
+import org.gatein.management.server.util.ProcessException;
 
 /**
  * {@code FileDownloadServlet}
@@ -46,8 +49,7 @@ public class FileDownloadServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO
-
+        
         String type = request.getParameter("ownerType");
         String name = request.getParameter("ownerId");
         System.out.println("ownerType : " + type + ", ownerId : " + name);
@@ -57,9 +59,15 @@ public class FileDownloadServlet extends HttpServlet {
 
         PortalService portalService = PortalService.getInstance();
         OutputStream os = response.getOutputStream();
-        portalService.exportSite(type, name, os);
-        os.flush();
-        os.close();
+        try {
+            portalService.exportSite(type, name, os);
+            os.flush();
+            os.close();
+        } catch (IOException exp) {
+            throw exp;
+        } catch (ProcessException ex) {
+            Logger.getLogger(FileDownloadServlet.class.getName()).log(Level.SEVERE, "", ex);
+        }
     }
 
     @Override

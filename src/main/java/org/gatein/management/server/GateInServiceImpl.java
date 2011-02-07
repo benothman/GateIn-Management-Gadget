@@ -160,7 +160,7 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
             //resp.setContentLength((int) f.length());
             portalService.exportSite(type, name, os);
 
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             logger.log(Level.SEVERE, "Error while exporting site : type = {0}, name = {1}, error message = {2}",
                     new String[]{type, name, ex.getMessage()});
             ex.printStackTrace();

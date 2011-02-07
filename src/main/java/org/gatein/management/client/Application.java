@@ -86,14 +86,15 @@ public class Application extends Gadget<UserPreferences> {
     // gui elements
     private HTML header;
     private HTML details;
-    private Anchor exportAnchor;
+    private Button exportButton;
+    private String exportHref = "";
 
     @Override
     protected void init(UserPreferences preferences) {
         TreeImages images = GWT.create(TreeImages.class);
 
         RootPanel rootPanel = RootPanel.get();
-        rootPanel.setSize("95%", "85%");
+        rootPanel.setSize("95%", "75%");
         rootPanel.addStyleName("rootpanelstyle");
 
         DecoratedTabPanel decoratedTabPanel = new DecoratedTabPanel();
@@ -119,7 +120,7 @@ public class Application extends Gadget<UserPreferences> {
         final Tree tree = getTree(images);
         scrollPanel.setWidget(tree);
 
-        DecoratorPanel decoratorPanelCenter = new DecoratorPanel();
+        final DecoratorPanel decoratorPanelCenter = new DecoratorPanel();
         absolutePanel.add(decoratorPanelCenter, 256, 10);
         decoratorPanelCenter.setSize("400px", "402px");
 
@@ -139,36 +140,13 @@ public class Application extends Gadget<UserPreferences> {
         treeAbsolutePanel.add(html, 10, 43);
         html.setSize("380px", "14px");
 
-        this.exportAnchor = new Anchor("Export site", "");
-        Button exportButton = new Button("Export site");
-        exportButton.addClickHandler(new ClickHandler() {
+        this.exportButton = new Button("Export site", new ClickHandler() {
 
             public void onClick(ClickEvent event) {
-                TreeItem selected = tree.getSelectedItem();
-                if (selected != null) {
-                    TreeNode tn = (TreeNode) selected.getUserObject();
-                    if (tn != null && tn.isExportable()) {
-                        final String type = tn.getType();
-                        final String name = tn.getSiteName();
-                        gtnService.exportSite(type, name, new AsyncCallback<Void>() {
-
-                            public void onFailure(Throwable caught) {
-                                Window.alert("Operation failed!<br/>" + caught);
-                            }
-
-                            public void onSuccess(Void result) {
-                                Window.alert("The site[type:" + type + ", name:" + name + "] was exported with success!");
-                            }
-                        });
-                    } else {
-                        Window.alert("The selected node is not exportable!");
-                    }
-                }
+                Window.open(exportHref, "_blank", "");
             }
         });
-
-        //treeAbsolutePanel.add(exportButton, 10, 359);
-        treeAbsolutePanel.add(this.exportAnchor, 10, 359);
+        treeAbsolutePanel.add(this.exportButton, 10, 359);
         decoratorPanelCenter.setWidget(treeAbsolutePanel);
         treeAbsolutePanel.setSize("400px", "393px");
 
@@ -178,8 +156,7 @@ public class Application extends Gadget<UserPreferences> {
         AbsolutePanel absolutePanelImportLink = new AbsolutePanel();
         absolutePanelImportLink.setSize("162px", "395px");
 
-        final Anchor importAnchor = new Anchor("Import file");
-        //importAnchor.setDirectionEstimator(true);
+        final Anchor importAnchor = new Anchor("Import site");
         absolutePanelImportLink.add(importAnchor, 10, 10);
         importAnchor.setWidth("90%");
 
@@ -205,8 +182,8 @@ public class Application extends Gadget<UserPreferences> {
 
             @Override
             public void onClick(ClickEvent event) {
-                importAnchor.setEnabled(false);
-                dialogBox.center();
+                dialogBox.setPopupPosition(267, 60);
+                dialogBox.show();
             }
         });
 
@@ -223,6 +200,7 @@ public class Application extends Gadget<UserPreferences> {
         dialogBox.setText("Import site");
         dialogBox.setAnimationEnabled(true);
         dialogBox.setModal(true);
+        dialogBox.setGlassEnabled(true);
 
         // Create a table to layout the content
         VerticalPanel dialogContents = new VerticalPanel();
@@ -290,7 +268,8 @@ public class Application extends Gadget<UserPreferences> {
     }
 
     /**
-     * 
+     * Create and initialize the site tree
+     *
      * @param resources
      * @return
      */
@@ -350,9 +329,10 @@ public class Application extends Gadget<UserPreferences> {
     }
 
     /**
+     * Create an {@code TreeItem} and set it's user object
      *
-     * @param tn
-     * @return
+     * @param tn The user object of the {@code TreeItem}
+     * @return {@code TreeItem}
      */
     private TreeItem createItem(TreeNode tn) {
         TreeItem item = new TreeItem(tn.getText());
@@ -374,11 +354,11 @@ public class Application extends Gadget<UserPreferences> {
                 Application.this.details.setHTML(node.getNodeInfo());
 
                 if (node.isExportable()) {
-                    String href = DOWNLOAD_ACTION_URL + "?ownerType=" + node.getType() + "&ownerId=" + node.getSiteName();
-                    Application.this.exportAnchor.setHref(href);
-                    Application.this.exportAnchor.setEnabled(true);
+                    Application.this.exportHref = DOWNLOAD_ACTION_URL + "?ownerType=" + node.getType() + "&ownerId=" + node.getSiteName();
+                    Application.this.exportButton.setEnabled(true);
                 } else {
-                    Application.this.exportAnchor.setEnabled(false);
+                    Application.this.exportButton.setEnabled(false);
+                    Application.this.exportHref = "#";
                 }
             }
         };
