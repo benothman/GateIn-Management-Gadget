@@ -26,6 +26,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileItem;
@@ -43,11 +46,32 @@ import org.gatein.management.server.util.ProcessException;
 public class FileUploadServlet extends UploadAction {
 
     private static final long serialVersionUID = 1L;
+    private static final Logger logger = Logger.getLogger(FileUploadServlet.class.getName());
     private Hashtable<String, String> receivedContentTypes = new Hashtable<String, String>();
     /**
      * Maintain a list with received files and their content types.
      */
     private Hashtable<String, File> receivedFiles = new Hashtable<String, File>();
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        try {
+            super.doGet(request, response);
+        } catch (Exception exp) {
+            logger.log(Level.SEVERE, "doGet error -> {0}", exp.getMessage());
+            exp.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        try {
+            super.doPost(request, response);
+        } catch (Exception exp) {
+            logger.log(Level.SEVERE, "doPost error -> {0}", exp.getMessage());
+            exp.printStackTrace();
+        }
+    }
 
     /**
      * Override executeAction to save the received files in a custom place
@@ -134,6 +158,7 @@ public class FileUploadServlet extends UploadAction {
             PortalService portalService = PortalService.getInstance();
             portalService.importSite(in);
         } catch (Exception ex) {
+            logger.log(Level.SEVERE, "process import error -> {0}", ex.getMessage());
             throw new ProcessException("Import process failed", ex);
         }
     }

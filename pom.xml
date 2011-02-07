@@ -34,7 +34,7 @@
         <dependency>
             <groupId>com.googlecode.gwtupload</groupId>
             <artifactId>gwtupload</artifactId>
-            <version>0.6.3-compat</version>
+            <version>${gwtupload.version}</version>
         </dependency>
 
 
@@ -130,6 +130,7 @@
       <!-- convenience to define GWT version in one place -->
         <gwt.version>2.1.0</gwt.version>
         <gwt.gadget.version>1.2.0</gwt.gadget.version>
+        <gwtupload.version>0.6.3-compat</gwtupload.version>
       <!--  tell the compiler we can use 1.5 -->
         <maven.compiler.source>1.5</maven.compiler.source>
         <maven.compiler.target>1.5</maven.compiler.target>

@@ -144,9 +144,10 @@ public final class PortalService {
         try {
             List<Page> pages = getPages(type, name);
             PortalConfig pc = null;
+            String key = null;
             for (Page page : pages) {
                 pc = dataStorage.getPortalConfig(page.getOwnerType(), page.getOwnerId());
-                String key = page.getOwnerType() + "::" + page.getOwnerId();
+                key = page.getOwnerType() + "::" + page.getOwnerId();
                 if (pConfigs.get(key) == null && pc != null) {
                     pConfigs.put(key, pc);
                 }

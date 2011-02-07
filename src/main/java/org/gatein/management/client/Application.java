@@ -57,11 +57,10 @@ import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import gwtupload.client.IUploadStatus.Status;
 import gwtupload.client.IUploader;
+import gwtupload.client.MultiUploader;
 import gwtupload.client.PreloadedImage;
 import gwtupload.client.PreloadedImage.OnLoadPreloadedImageHandler;
-import gwtupload.client.SingleUploader;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * {@code Application}
@@ -80,15 +79,11 @@ import java.util.logging.Logger;
 @AllowHtmlQuirksMode(true)
 public class Application extends Gadget<UserPreferences> {
 
-    private static final Logger logger = Logger.getLogger(Application.class.getName());
     // asycn services to get requests from the server through ajax.
     private final GateInServiceAsync gtnService = GWT.create(GateInService.class);
     private static final String UPLOAD_ACTION_URL = GWT.getModuleBaseURL() + "upload";
     private static final String DOWNLOAD_ACTION_URL = GWT.getModuleBaseURL() + "download";
     // gui elements
-    private SelectionHandler<TreeItem> selectionHandler;
-    private OpenHandler<TreeItem> openHandler;
-    private CloseHandler<TreeItem> closeHandler;
     private HTML header;
     private HTML details;
     private Anchor exportAnchor;
@@ -98,7 +93,7 @@ public class Application extends Gadget<UserPreferences> {
         TreeImages images = GWT.create(TreeImages.class);
 
         RootPanel rootPanel = RootPanel.get();
-        rootPanel.setSize("95%", "95%");
+        rootPanel.setSize("95%", "85%");
         rootPanel.addStyleName("rootpanelstyle");
 
         DecoratedTabPanel decoratedTabPanel = new DecoratedTabPanel();
@@ -143,7 +138,6 @@ public class Application extends Gadget<UserPreferences> {
         HTML html = new HTML("<hr />", true);
         treeAbsolutePanel.add(html, 10, 43);
         html.setSize("380px", "14px");
-
 
         this.exportAnchor = new Anchor("Export site", "");
         Button exportButton = new Button("Export site");
@@ -206,23 +200,6 @@ public class Application extends Gadget<UserPreferences> {
         userManagementPanel.add(suggestBox, 10, 40);
         suggestBox.setSize("215px", "20px");
 
-        /*
-        AbsolutePanel dialBoxAbsolutePanel = new AbsolutePanel();
-        decoratedTabPanel.add(dialBoxAbsolutePanel, "Dialog Box", false);
-        dialBoxAbsolutePanel.setSize("400px", "250px");
-
-        Label dboxLabel = new Label("Select a site to import");
-        dboxLabel.setDirectionEstimator(true);
-        dialBoxAbsolutePanel.add(dboxLabel, 10, 10);
-        dboxLabel.setSize("380px", "30px");
-
-        FileUpload fileUpload = new FileUpload();
-        dialBoxAbsolutePanel.add(fileUpload, 10, 153);
-
-        Button button_1 = new Button("Upload");
-        dialBoxAbsolutePanel.add(button_1, 257, 151);
-        */
-
         final DialogBox dialogBox = createDialogBox();
         importAnchor.addClickHandler(new ClickHandler() {
 
@@ -253,12 +230,14 @@ public class Application extends Gadget<UserPreferences> {
         dialogBox.setWidget(dialogContents);
 
         // Add some text to the top of the dialog
+        Label label = new Label("Select a file to import : ");
+        dialogContents.add(label);
 
         final FlowPanel panelImages = new FlowPanel();
+
         final OnLoadPreloadedImageHandler showImage = new OnLoadPreloadedImageHandler() {
 
             public void onLoad(PreloadedImage img) {
-
                 img.setWidth("75px");
                 panelImages.add(img);
             }
@@ -267,31 +246,28 @@ public class Application extends Gadget<UserPreferences> {
 
             public void onFinish(IUploader uploader) {
                 if (uploader.getStatus() == Status.SUCCESS) {
-                    //new PreloadedImage(uploader.fileUrl(), showImage);
+                    new PreloadedImage(uploader.fileUrl(), showImage);
                 }
             }
         };
 
-        SingleUploader singleUploader = new SingleUploader();
-        singleUploader.setServletPath(UPLOAD_ACTION_URL);
-        singleUploader.addOnFinishUploadHandler(onFinishUploaderHandler);
+        MultiUploader uploader = new MultiUploader();
+        // Add a finish handler which will load the image once the upload finishes
+        uploader.addOnFinishUploadHandler(onFinishUploaderHandler);
+        //defaultUploader.setMaximumFiles(3);
+        // You can add customized parameters to servlet call
+        uploader.setServletPath(UPLOAD_ACTION_URL);
+        //defaultUploader.avoidRepeatFiles(true);
 
-        //HTML boxDetails = new HTML("Details");
-        //dialogContents.add(boxDetails);
-        //dialogContents.setCellHorizontalAlignment(
-        //      singleUploader, HasHorizontalAlignment.ALIGN_CENTER);
-
-        dialogContents.add(singleUploader);
-        //dialogContents.add(panelImages);
-
+        dialogContents.add(uploader);
 
         AbsolutePanel absolutePanel = new AbsolutePanel();
-        absolutePanel.setSize("400px", "300px");
+        absolutePanel.setSize("400px", "150px");
         dialogContents.add(absolutePanel);
         dialogContents.setCellHorizontalAlignment(
-                absolutePanel, HasHorizontalAlignment.ALIGN_CENTER);
+                absolutePanel, HasHorizontalAlignment.ALIGN_LEFT);
 
-        absolutePanel.add(panelImages);
+        absolutePanel.add(panelImages, 10, 10);
 
         // Add a close button at the bottom of the dialog
         Button closeButton = new Button("Close", new ClickHandler() {
@@ -327,14 +303,15 @@ public class Application extends Gadget<UserPreferences> {
         tree.setAnimationEnabled(true);
         tree.setSize("100%", "100%");
         //final TreeItem rootItem = tree.addItem(getItemString("Sites", resources.treeRoot()));
-        final TreeItem rootItem = new TreeItem("Sites");
-        rootItem.setUserObject(new TreeNode("Sites"));
+
+        final TreeNode rootNode = new TreeNode("Sites");
+        final TreeItem rootItem = createItem(rootNode);
         tree.addItem(rootItem);
 
         gtnService.getRootNodes(new AsyncCallback<List<TreeNode>>() {
 
             public void onFailure(Throwable caught) {
-                Window.alert("Loading tree failure " + caught);
+                Window.alert("Loading tree failure <br/>" + caught);
             }
 
             public void onSuccess(List<TreeNode> result) {
@@ -342,6 +319,7 @@ public class Application extends Gadget<UserPreferences> {
                     TreeItem ti = createItem(tn);
                     ti.addItem(new PendingItem());
                     rootItem.addItem(ti);
+                    rootNode.addChild(tn);
                 }
             }
         });
@@ -387,95 +365,87 @@ public class Application extends Gadget<UserPreferences> {
      * @return the selectionHandler
      */
     private SelectionHandler<TreeItem> getSelectionHandler() {
-        if (this.selectionHandler == null) {
-            this.selectionHandler = new SelectionHandler<TreeItem>() {
+        SelectionHandler<TreeItem> selectionHandler = new SelectionHandler<TreeItem>() {
 
-                public void onSelection(SelectionEvent<TreeItem> event) {
-                    final TreeItem item = event.getSelectedItem();
-                    TreeNode node = (TreeNode) item.getUserObject();
-                    Application.this.header.setHTML(node.getPath());
-                    Application.this.details.setHTML(node.getNodeInfo());
+            public void onSelection(SelectionEvent<TreeItem> event) {
+                final TreeItem item = event.getSelectedItem();
+                TreeNode node = (TreeNode) item.getUserObject();
+                Application.this.header.setHTML(node.getPath());
+                Application.this.details.setHTML(node.getNodeInfo());
 
-                    if (node.isExportable()) {
-                        String href = DOWNLOAD_ACTION_URL + "?ownerType=" + node.getType() + "&ownerId=" + node.getSiteName();
-                        Application.this.exportAnchor.setHref(href);
-                        Application.this.exportAnchor.setEnabled(true);
-                    } else {
-                        Application.this.exportAnchor.setEnabled(false);
-                    }
+                if (node.isExportable()) {
+                    String href = DOWNLOAD_ACTION_URL + "?ownerType=" + node.getType() + "&ownerId=" + node.getSiteName();
+                    Application.this.exportAnchor.setHref(href);
+                    Application.this.exportAnchor.setEnabled(true);
+                } else {
+                    Application.this.exportAnchor.setEnabled(false);
                 }
-            };
-        }
+            }
+        };
 
-        return this.selectionHandler;
+        return selectionHandler;
     }
 
     /**
      * @return the openHandler
      */
     private OpenHandler<TreeItem> getOpenHandler() {
-        if (this.openHandler == null) {
-            this.openHandler = new OpenHandler<TreeItem>() {
+        OpenHandler<TreeItem> openHandler = new OpenHandler<TreeItem>() {
 
-                public void onOpen(OpenEvent<TreeItem> event) {
+            public void onOpen(OpenEvent<TreeItem> event) {
 
-                    final TreeItem target = event.getTarget();
-                    final TreeNode tn = (TreeNode) target.getUserObject();
-                    String text = target.getText();
-                    target.setText("Loading items");
+                final TreeItem target = event.getTarget();
+                final TreeNode tn = (TreeNode) target.getUserObject();
+                String text = target.getText();
+                target.setText("Loading items");
 
-                    int count = target.getChildCount();
-                    if (count > 0) {
-                        TreeItem it = target.getChild(0);
-                        if (it instanceof PendingItem) {
-                            target.removeItem(it);
-                        }
+                int count = target.getChildCount();
+                if (count > 0) {
+                    TreeItem it = target.getChild(0);
+                    if (it instanceof PendingItem) {
+                        target.removeItem(it);
                     }
-
-                    if (target.getChildCount() == 0) {
-                        gtnService.updateItem(tn,
-                                new AsyncCallback<TreeNode>() {
-
-                                    public void onFailure(Throwable caught) {
-                                        Window.alert("Fail to update the tree items "
-                                                + caught);
-                                        Application.this.details.setHTML("Failed to load sub-tree");
-                                    }
-
-                                    public void onSuccess(TreeNode result) {
-
-                                        for (TreeNode tnChild : result.getChildren()) {
-                                            TreeItem it = Application.this.createItem(tnChild);
-                                            tnChild.setPath(tn.getPath()
-                                                    + " > " + it.getText());
-                                            target.addItem(it);
-                                        }
-                                    }
-                                });
-                    }
-
-                    target.setText(text);
                 }
-            };
-        }
 
-        return this.openHandler;
+                if (target.getChildCount() == 0) {
+                    gtnService.updateItem(tn,
+                            new AsyncCallback<TreeNode>() {
+
+                                public void onFailure(Throwable caught) {
+                                    Window.alert("Fail to update the tree items "
+                                            + caught);
+                                    Application.this.details.setHTML("Failed to load sub-tree");
+                                }
+
+                                public void onSuccess(TreeNode result) {
+
+                                    for (TreeNode tnChild : result.getChildren()) {
+                                        TreeItem it = Application.this.createItem(tnChild);
+                                        target.addItem(it);
+                                    }
+                                }
+                            });
+                }
+
+                target.setText(text);
+            }
+        };
+
+        return openHandler;
     }
 
     /**
      * @return the closeHandler
      */
     private CloseHandler<TreeItem> getCloseHandler() {
-        if (this.closeHandler == null) {
-            this.closeHandler = new CloseHandler<TreeItem>() {
+        CloseHandler<TreeItem> closeHandler = new CloseHandler<TreeItem>() {
 
-                public void onClose(CloseEvent<TreeItem> event) {
-                    GWT.log("closing item " + event.getTarget().getText());
-                }
-            };
-        }
+            public void onClose(CloseEvent<TreeItem> event) {
+                GWT.log("closing item " + event.getTarget().getText());
+            }
+        };
 
-        return this.closeHandler;
+        return closeHandler;
 
     }
 }

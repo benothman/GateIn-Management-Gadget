@@ -36,12 +36,12 @@ public class TreeNode implements Serializable {
      *
      */
     private static final long serialVersionUID = 1L;
+    private TreeNode parent;
     private List<TreeNode> children;
     private String text;
     private String type;
     private String siteName;
     private String nodeInfo;
-    private String path;
     private boolean updated = false;
     private boolean exportable;
 
@@ -60,7 +60,6 @@ public class TreeNode implements Serializable {
     public TreeNode(String text) {
         this.text = text;
         this.children = new ArrayList<TreeNode>();
-        //this.initItem();
     }
 
     /**
@@ -98,6 +97,7 @@ public class TreeNode implements Serializable {
      * @return {@code true} if the child is added successfully else {@code false}
      */
     public boolean addChild(TreeNode child) {
+        child.setParent(this);
         return this.children.add(child);
     }
 
@@ -114,7 +114,7 @@ public class TreeNode implements Serializable {
      * @return the children
      */
     public List<TreeNode> getChildren() {
-        return children;
+        return this.children;
     }
 
     /**
@@ -156,14 +156,7 @@ public class TreeNode implements Serializable {
      * @return the path
      */
     public String getPath() {
-        return path;
-    }
-
-    /**
-     * @param path the path to set
-     */
-    public void setPath(String path) {
-        this.path = path;
+        return (this.parent != null ? this.parent.getPath() : "") + " > " + this.text;
     }
 
     /**
@@ -206,5 +199,19 @@ public class TreeNode implements Serializable {
      */
     public void setExportable(boolean exportable) {
         this.exportable = exportable;
+    }
+
+    /**
+     * @return the parent
+     */
+    public TreeNode getParent() {
+        return parent;
+    }
+
+    /**
+     * @param parent the parent to set
+     */
+    public void setParent(TreeNode parent) {
+        this.parent = parent;
     }
 }
