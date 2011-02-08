@@ -43,12 +43,14 @@ import com.google.gwt.user.client.ui.DecoratedTabPanel;
 import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.NamedFrame;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SuggestBox;
@@ -140,12 +142,20 @@ public class Application extends Gadget<UserPreferences> {
         treeAbsolutePanel.add(html, 10, 43);
         html.setSize("380px", "14px");
 
+
+        final Frame frame = new NamedFrame("download-frame");
+        frame.setStyleName("download-frame");
+        rootPanel.get().add(frame);
+        
+
         this.exportButton = new Button("Export site", new ClickHandler() {
 
             public void onClick(ClickEvent event) {
-                Window.open(exportHref, "_blank", "");
+                //Window.open(exportHref, "_blank", "");
+                frame.setUrl(exportHref);
             }
         });
+        this.exportButton.setEnabled(false);
         treeAbsolutePanel.add(this.exportButton, 10, 359);
         decoratorPanelCenter.setWidget(treeAbsolutePanel);
         treeAbsolutePanel.setSize("400px", "393px");

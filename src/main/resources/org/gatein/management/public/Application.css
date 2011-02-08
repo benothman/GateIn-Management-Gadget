@@ -50,6 +50,12 @@ body {
     border-radius: 4px;
 }
 
+.download-frame {
+    visibility: hidden;
+    border: 0px;
+    visibility: hidden;
+}
+
 a {
     color: darkblue;
 }

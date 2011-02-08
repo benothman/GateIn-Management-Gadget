@@ -65,9 +65,12 @@ To install the application, follow the instructions below:
 
 6) If you have server already running, you have to stop and restart it (hot dpeloy weakness!!)
 
-7) Now you can build the gadget and deploy the war archive on your JBoss AS server.
+7) run the UNIX script "init.sh" to install gwt-gadget locally, since there is no repository for
+   the version 1.2.0.
 
-8) Follow the GateIn tutorial to register the gadget and add it to a page.
+8) Now you can build the gadget and deploy the war archive on your JBoss AS server.
+
+9) Follow the GateIn tutorial to register the gadget and add it to a page.
 
    * Add the gadget as remote one using the url :
      http://localhost:8080/gwtgadget/gwtgadget/org.gatein.management.client.Application.gadget.xml
@@ -75,6 +78,6 @@ To install the application, follow the instructions below:
    * To see how to use GWT gadgets with GateIn, you can refer to the example below:
      http://community.jboss.org/wiki/GWTGadgetaccessingPortalServices
    
-9) Once all these instructions are done, the gadget is ready for use.
+10) Once all these instructions are done, the gadget is ready for use.
 
 
