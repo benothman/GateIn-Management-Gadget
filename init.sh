@@ -1,6 +1,6 @@
 #!/bin/sh
 # 
-# Before building the maven project, start with installing the gadget jar locally since there is no
+# Before building the maven project, start with installing the GWT gadgets jar file locally since there is no
 # repository for the version 1.2.0 which is used for this project.
 # 
 # @author Nabil Benothman

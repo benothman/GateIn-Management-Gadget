@@ -27,7 +27,6 @@ import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -46,7 +45,6 @@ import org.gatein.management.server.util.ProcessException;
 public class FileUploadServlet extends UploadAction {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger logger = Logger.getLogger(FileUploadServlet.class.getName());
     private Hashtable<String, String> receivedContentTypes = new Hashtable<String, String>();
     /**
      * Maintain a list with received files and their content types.
@@ -58,7 +56,8 @@ public class FileUploadServlet extends UploadAction {
         try {
             super.doGet(request, response);
         } catch (Exception exp) {
-            logger.log(Level.SEVERE, "doGet error -> {0}", exp.getMessage());
+            // used just for debug -> will be removed
+            logger.error("doGet error -> " + exp.getMessage());
             exp.printStackTrace();
         }
     }
@@ -68,7 +67,8 @@ public class FileUploadServlet extends UploadAction {
         try {
             super.doPost(request, response);
         } catch (Exception exp) {
-            logger.log(Level.SEVERE, "doPost error -> {0}", exp.getMessage());
+            // used just for debug -> will be removed 
+            logger.error("doPost error -> " + exp.getMessage());
             exp.printStackTrace();
         }
     }
@@ -82,7 +82,8 @@ public class FileUploadServlet extends UploadAction {
         String response = "";
         int cont = 0;
         for (FileItem item : sessionFiles) {
-            if (false == item.isFormField()) {
+            //if (false == item.isFormField()) {
+            if (!item.isFormField()) {
                 cont++;
                 try {
                     /// Create a new file based on the remote file name in the client
@@ -158,8 +159,10 @@ public class FileUploadServlet extends UploadAction {
             PortalService portalService = PortalService.getInstance();
             portalService.importSite(in);
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, "process import error -> {0}", ex.getMessage());
+            logger.error("process import error -> " + ex.getMessage());
             throw new ProcessException("Import process failed", ex);
+        } finally {
+            PortalService.remove();
         }
     }
 }

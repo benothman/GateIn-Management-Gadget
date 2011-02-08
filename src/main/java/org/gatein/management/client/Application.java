@@ -115,38 +115,37 @@ public class Application extends Gadget<UserPreferences> {
         absolutePanel_1.setSize("230px", "395px");
         decoratorPanelWest.setWidget(absolutePanel_1);
 
-        ScrollPanel scrollPanel = new ScrollPanel();
-        absolutePanel_1.add(scrollPanel, 10, 10);
-        scrollPanel.setSize("210px", "375px");
+        ScrollPanel treeScrollPanel = new ScrollPanel();
+        absolutePanel_1.add(treeScrollPanel, 10, 10);
+        treeScrollPanel.setSize("210px", "375px");
 
         final Tree tree = getTree(images);
-        scrollPanel.setWidget(tree);
+        treeScrollPanel.setWidget(tree);
 
         final DecoratorPanel decoratorPanelCenter = new DecoratorPanel();
+
         absolutePanel.add(decoratorPanelCenter, 256, 10);
         decoratorPanelCenter.setSize("400px", "402px");
 
-        AbsolutePanel treeAbsolutePanel = new AbsolutePanel();
-        treeAbsolutePanel.setSize("97%", "100%");
+        AbsolutePanel centerAbsolutePanel = new AbsolutePanel();
+        centerAbsolutePanel.setSize("97%", "100%");
 
         this.header = new HTML("Select an item");
         this.header.setDirectionEstimator(true);
-        treeAbsolutePanel.add(this.header, 10, 10);
+        centerAbsolutePanel.add(this.header, 10, 10);
         this.header.setSize("450px", "50px");
 
         this.details = new HTML("No item selected");
-        treeAbsolutePanel.add(this.details, 10, 76);
+        centerAbsolutePanel.add(this.details, 10, 76);
         this.details.setSize("450px", "156px");
 
         HTML html = new HTML("<hr />", true);
-        treeAbsolutePanel.add(html, 10, 43);
+        centerAbsolutePanel.add(html, 10, 43);
         html.setSize("380px", "14px");
-
 
         final Frame frame = new NamedFrame("download-frame");
         frame.setStyleName("download-frame");
-        rootPanel.get().add(frame);
-        
+        rootPanel.add(frame);
 
         this.exportButton = new Button("Export site", new ClickHandler() {
 
@@ -156,9 +155,9 @@ public class Application extends Gadget<UserPreferences> {
             }
         });
         this.exportButton.setEnabled(false);
-        treeAbsolutePanel.add(this.exportButton, 10, 359);
-        decoratorPanelCenter.setWidget(treeAbsolutePanel);
-        treeAbsolutePanel.setSize("400px", "393px");
+        centerAbsolutePanel.add(this.exportButton, 10, 359);
+        decoratorPanelCenter.setWidget(centerAbsolutePanel);
+        centerAbsolutePanel.setSize("400px", "393px");
 
         DecoratorPanel decoratorPanelEast = new DecoratorPanel();
         absolutePanel.add(decoratorPanelEast, 672, 10);

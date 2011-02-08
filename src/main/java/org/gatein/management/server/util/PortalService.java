@@ -97,6 +97,14 @@ public final class PortalService {
     }
 
     /**
+     * 
+     */
+    public static void remove() {
+        instance.remove();
+    }
+
+
+    /**
      * Retrieve the {@code PortalConfig} having the given type
      *
      * @param type The type of {@code PortalConfig} (ownerType)
@@ -242,12 +250,14 @@ public final class PortalService {
      * @throws IOException
      */
     public void exportSite(String type, String name, OutputStream os) throws IOException, ProcessException {
+        // check whether the session is null or not
+        this.checkSession();
         ExportContext context = exportHandler.createExportContext();
 
         List<Page> pages = getPages(type, name);
         List<PortalConfig> portalConfigs = getPortalConfigs(pages);
         if (portalConfigs.isEmpty()) {
-            throw new ProcessException("No entry with the type : " + type + " and name : " + name);
+            throw new ProcessException("No entry with type : " + type + " and name : " + name);
         }
 
         List<PageNavigation> pageNavigations = getPageNavigations(type, name);
@@ -279,6 +289,7 @@ public final class PortalService {
      * site to import to the portal.
      */
     public void importSite(InputStream in) throws Exception {
+        this.checkSession();
         ImportContext context = importHandler.createContext(in);
         this.importHandler.importContext(context);
     }

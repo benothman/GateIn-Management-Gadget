@@ -49,7 +49,7 @@ public class FileDownloadServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         String type = request.getParameter("ownerType");
         String name = request.getParameter("ownerId");
         System.out.println("ownerType : " + type + ", ownerId : " + name);
@@ -57,16 +57,17 @@ public class FileDownloadServlet extends HttpServlet {
         String filename = type + "_" + name + ".zip";
         response.setHeader("Content-disposition", "attachment; filename=\"" + filename + "\"");
 
-        PortalService portalService = PortalService.getInstance();
         OutputStream os = response.getOutputStream();
         try {
-            portalService.exportSite(type, name, os);
+            PortalService.getInstance().exportSite(type, name, os);
             os.flush();
             os.close();
         } catch (IOException exp) {
             throw exp;
         } catch (ProcessException ex) {
             Logger.getLogger(FileDownloadServlet.class.getName()).log(Level.SEVERE, "", ex);
+        } finally {
+            PortalService.remove();
         }
     }
 

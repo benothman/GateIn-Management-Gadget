@@ -65,7 +65,7 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
 
         // TODO
 
-
+        PortalService.remove();
         return tn;
     }
 
@@ -108,6 +108,9 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
         nodes.add(portalNode);
         nodes.add(groupNode);
         nodes.add(userNode);
+
+        // clean up thread instance
+        PortalService.remove();
 
         return nodes;
     }
@@ -164,6 +167,8 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
             logger.log(Level.SEVERE, "Error while exporting site : type = {0}, name = {1}, error message = {2}",
                     new String[]{type, name, ex.getMessage()});
             ex.printStackTrace();
+        } finally {
+            PortalService.remove();
         }
     }
 
