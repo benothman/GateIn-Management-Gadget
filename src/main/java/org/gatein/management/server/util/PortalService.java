@@ -18,30 +18,24 @@
  */
 package org.gatein.management.server.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.exoplatform.commons.utils.LazyPageList;
-import org.exoplatform.container.ExoContainer;
-import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.DataStorage;
 import org.exoplatform.portal.config.Query;
 import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.portal.config.model.PageNavigation;
 import org.exoplatform.portal.config.model.PortalConfig;
-import org.exoplatform.portal.pom.config.POMSessionManager;
 import org.gatein.management.portalobjects.exportimport.api.ExportContext;
 import org.gatein.management.portalobjects.exportimport.api.ExportHandler;
 import org.gatein.management.portalobjects.exportimport.api.ImportContext;
 import org.gatein.management.portalobjects.exportimport.api.ImportHandler;
 import org.gatein.mop.api.workspace.Site;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * {@code PortalService}
@@ -54,55 +48,16 @@ import org.gatein.mop.api.workspace.Site;
 public final class PortalService {
 
     private static final Logger logger = Logger.getLogger(PortalService.class.getName());
-    private static final ThreadLocal<PortalService> instance = new ThreadLocal<PortalService>() {
 
-        @Override
-        protected PortalService initialValue() {
-            return new PortalService();
-        }
-    };
-    private ExoContainer container;
     private DataStorage dataStorage;
     private ExportHandler exportHandler;
     private ImportHandler importHandler;
 
-    /**
-     * Create a new instance of {@code PortalService}
-     */
-    private PortalService() {
-        super();
-        this.initService();
+    public PortalService(DataStorage dataStorage, ExportHandler exportHandler, ImportHandler importHandler) {
+        this.dataStorage = dataStorage;
+        this.exportHandler = exportHandler;
+        this.importHandler = importHandler;
     }
-
-    /**
-     * Initialize the service
-     *
-     * @throws Exception
-     */
-    protected void initService() {
-        //this.container = ExoContainerContext.getCurrentContainer();
-        this.container = PortalContainer.getInstance();
-        this.checkSession();
-        this.dataStorage = (DataStorage) container.getComponentInstanceOfType(DataStorage.class);
-        this.exportHandler = (ExportHandler) container.getComponentInstanceOfType(ExportHandler.class);
-        this.importHandler = (ImportHandler) container.getComponentInstanceOfType(ImportHandler.class);
-
-    }
-
-    /**
-     * @return the instance
-     */
-    public static PortalService getInstance() {
-        return instance.get();
-    }
-
-    /**
-     * 
-     */
-    public static void remove() {
-        instance.remove();
-    }
-
 
     /**
      * Retrieve the {@code PortalConfig} having the given type
@@ -178,7 +133,6 @@ public final class PortalService {
      * @return a collection of {@code Page}
      */
     public List<Page> getPages(String type, String name) {
-        this.checkSession();
         try {
             Query<Page> query = new Query<Page>(type, name, Page.class);
             LazyPageList<Page> results = dataStorage.find(query);
@@ -209,7 +163,6 @@ public final class PortalService {
      * @return a collection of {@code PageNavigation}
      */
     public List<PageNavigation> getPageNavigations(String type, String name) {
-        this.checkSession();
         try {
             Query<PageNavigation> query = new Query<PageNavigation>(type, name, PageNavigation.class);
             LazyPageList<PageNavigation> results = dataStorage.find(query);
@@ -250,8 +203,6 @@ public final class PortalService {
      * @throws IOException
      */
     public void exportSite(String type, String name, OutputStream os) throws IOException, ProcessException {
-        // check whether the session is null or not
-        this.checkSession();
         ExportContext context = exportHandler.createExportContext();
 
         List<Page> pages = getPages(type, name);
@@ -289,19 +240,9 @@ public final class PortalService {
      * site to import to the portal.
      */
     public void importSite(InputStream in) throws Exception {
-        this.checkSession();
         ImportContext context = importHandler.createContext(in);
+        //TODO: Add the ability to overwrite everything
+        //context.setOverwrite(true);
         this.importHandler.importContext(context);
-    }
-
-    /**
-     * Check whether the current session is null or not. If there is no session
-     * already opened, a new session will be opened.
-     */
-    protected void checkSession() {
-        POMSessionManager mgr = (POMSessionManager) this.container.getComponentInstanceOfType(POMSessionManager.class);
-        if (mgr.getSession() == null) {
-            mgr.openSession();
-        }
     }
 }

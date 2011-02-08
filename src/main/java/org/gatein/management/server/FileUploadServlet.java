@@ -31,6 +31,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileItem;
+import org.gatein.management.server.context.CustomContext;
 import org.gatein.management.server.util.PortalService;
 import org.gatein.management.server.util.ProcessException;
 
@@ -156,13 +157,11 @@ public class FileUploadServlet extends UploadAction {
      */
     private void processImport(InputStream in) throws Exception {
         try {
-            PortalService portalService = PortalService.getInstance();
+            PortalService portalService = CustomContext.getInstance().getPortalService();
             portalService.importSite(in);
         } catch (Exception ex) {
             logger.error("process import error -> " + ex.getMessage());
             throw new ProcessException("Import process failed", ex);
-        } finally {
-            PortalService.remove();
         }
     }
 }
