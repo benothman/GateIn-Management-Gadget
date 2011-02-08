@@ -71,10 +71,10 @@ public class CustomContextFilter implements Filter {
         @Override
         public void start() {
             RequestLifeCycle.begin(container, true);
-            POMSessionManager mgr = getComponent(POMSessionManager.class);
-            if (mgr.getSession() == null) {
-                mgr.openSession();
-            }
+//            POMSessionManager mgr = getComponent(POMSessionManager.class);
+//            if (mgr.getSession() == null) {
+//                mgr.openSession();
+//            }
         }
 
         @Override
