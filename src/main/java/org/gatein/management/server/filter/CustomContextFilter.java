@@ -46,6 +46,7 @@ public class CustomContextFilter implements Filter {
     }
 
     private static class CustomContextImpl extends CustomContext {
+
         private ExoContainer container;
         private PortalService service;
 

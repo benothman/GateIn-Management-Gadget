@@ -76,16 +76,8 @@ public final class PortalService {
      * @return a list of {@code PortalConfig}
      */
     public List<PortalConfig> getPortalConfigs(String type, String name) {
-
-        try {
-            List<Page> pages = getPages(type, name);
-            return getPortalConfigs(pages);
-        } catch (Exception exp) {
-            logger.log(Level.SEVERE, "Problem occurs when retrieving the list of sites for type {0} and name {1} -> {2}",
-                    new String[]{type, name, exp.getMessage()});
-        }
-
-        return Collections.EMPTY_LIST;
+        List<Page> pages = getPages(type, name);
+        return getPortalConfigs(pages);
     }
 
     /**

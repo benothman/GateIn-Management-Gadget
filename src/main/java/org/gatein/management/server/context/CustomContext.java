@@ -10,6 +10,8 @@ import org.gatein.management.server.util.PortalService;
 public abstract class CustomContext {
 
     private static ThreadLocal<CustomContext> instance = new ThreadLocal<CustomContext>() {
+
+        @Override
         protected CustomContext initialValue() {
             return null;
         }

@@ -18,23 +18,16 @@
  */
 package org.gatein.management.server;
 
-import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.gatein.management.client.GateInService;
 import org.gatein.management.client.TreeNode;
 import org.gatein.management.server.context.CustomContext;
 import org.gatein.management.server.util.PortalService;
-import org.gatein.mop.api.workspace.Site;
 
 /**
  * {@code GateInServiceImpl}
@@ -66,26 +59,10 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
 
         // TODO
 
+
+        CustomContext.getInstance().end();
+
         return tn;
-    }
-
-    /**
-     * 
-     * @param tn
-     * @throws Exception
-     */
-    public String updateNodeInfo(TreeNode tn) throws Exception {
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
-
-    /**
-     * 
-     * @param item
-     * @return
-     * @throws Exception
-     */
-    public String updateHeader(TreeItem item) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /**
@@ -142,32 +119,5 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
         }
 
         return tn;
-    }
-
-    /**
-     * 
-     * @param type
-     * @param name
-     */
-    public void exportSite(String type, String name) {
-        PortalService portalService = CustomContext.getInstance().getPortalService();
-
-        try {
-            HttpServletResponse resp = getThreadLocalResponse();
-            ServletOutputStream os = resp.getOutputStream();
-            ServletContext context = getServletConfig().getServletContext();
-            resp.setContentType("application/octet-stream");
-            //resp.setContentLength((int) f.length());
-            portalService.exportSite(type, name, os);
-
-        } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Error while exporting site : type = {0}, name = {1}, error message = {2}",
-                    new String[]{type, name, ex.getMessage()});
-            ex.printStackTrace();
-        }
-    }
-
-    public void importSite(Site site) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

@@ -20,10 +20,7 @@ package org.gatein.management.client;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
-import com.google.gwt.user.client.ui.TreeItem;
 import java.util.List;
-import org.gatein.mop.api.workspace.Page;
-import org.gatein.mop.api.workspace.Site;
 
 /**
  * {@code GateInService}
@@ -45,27 +42,8 @@ public interface GateInService extends RemoteService {
 
     /**
      * 
-     * @throws Exception
-     */
-    public String updateHeader(TreeItem item) throws Exception;
-
-    /**
-     * 
-     * @throws Exception
-     */
-    public String updateNodeInfo(TreeNode item) throws Exception;
-
-    /**
-     * 
      * @return
      * @throws Exception
      */
     public List<TreeNode> getRootNodes() throws Exception;
-
-    /**
-     * 
-     * @param type
-     * @param name
-     */
-    public void exportSite(String type, String name);
 }

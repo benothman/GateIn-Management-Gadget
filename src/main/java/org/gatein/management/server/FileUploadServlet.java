@@ -90,10 +90,8 @@ public class FileUploadServlet extends UploadAction {
                     /// Create a new file based on the remote file name in the client
                     String saveName = item.getName().replaceAll("[\\\\/><\\|\\s\"'{}()\\[\\]]+", "_");
                     /// Create a temporary file placed in the default system temp folder
-                    //File file = File.createTempFile("upload-", ".bin");
                     File file = File.createTempFile(saveName, ".zip");
                     item.write(file);
-
                     /// Save a list with the received files
                     receivedFiles.put(item.getFieldName(), file);
                     receivedContentTypes.put(item.getFieldName(), item.getContentType());

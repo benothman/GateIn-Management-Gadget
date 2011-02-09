@@ -19,7 +19,6 @@
 package org.gatein.management.client;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.TreeItem;
 import java.util.List;
 
 /**
@@ -42,29 +41,7 @@ public interface GateInServiceAsync {
 
     /**
      * 
-     * @param item
-     * @param asyncCallback
-     */
-    public void updateNodeInfo(TreeNode item, AsyncCallback<String> asyncCallback);
-
-    /**
-     * 
-     * @param asyncCallback
-     */
-    public void updateHeader(TreeItem item, AsyncCallback<String> asyncCallback);
-
-    /**
-     * 
      * @param asyncCallback
      */
     public void getRootNodes(AsyncCallback<List<TreeNode>> asyncCallback);
-
-    /**
-     * 
-     * @param type
-     * @param name
-     * @param asyncCallback
-     */
-    public void exportSite(String type, String name, AsyncCallback<Void> asyncCallback);
-
 }

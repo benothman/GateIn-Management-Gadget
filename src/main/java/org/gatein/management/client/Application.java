@@ -76,7 +76,7 @@ import java.util.List;
  * @author Nabil Benothman
  * @version 1.0
  */
-@ModulePrefs(title = "GateIn Management", author = "Nabil Benothman", author_email = "nbenothm@redhat.com", description = "This gadget allows the administrator to export and import files/App")
+@ModulePrefs(title = "GateIn Management", author = "Nabil Benothman", author_email = "nbenothm@redhat.com", description = "This gadget allows the administrator to export/import sites")
 @UseLongManifestName(true)
 @AllowHtmlQuirksMode(true)
 public class Application extends Gadget<UserPreferences> {
@@ -96,13 +96,13 @@ public class Application extends Gadget<UserPreferences> {
         TreeImages images = GWT.create(TreeImages.class);
 
         RootPanel rootPanel = RootPanel.get();
-        rootPanel.setSize("95%", "75%");
+        rootPanel.setSize("885px", "490px");
         rootPanel.addStyleName("rootpanelstyle");
 
         DecoratedTabPanel decoratedTabPanel = new DecoratedTabPanel();
         decoratedTabPanel.setAnimationEnabled(true);
         rootPanel.add(decoratedTabPanel, 10, 10);
-        decoratedTabPanel.setSize("870px", "477px");
+        decoratedTabPanel.setSize("870px", "480px");
 
         AbsolutePanel absolutePanel = new AbsolutePanel();
         absolutePanel.setSize("847px", "425px");
@@ -134,6 +134,7 @@ public class Application extends Gadget<UserPreferences> {
         this.header.setDirectionEstimator(true);
         centerAbsolutePanel.add(this.header, 10, 10);
         this.header.setSize("450px", "50px");
+        this.header.setStyleName("header-style");
 
         this.details = new HTML("No item selected");
         centerAbsolutePanel.add(this.details, 10, 76);
@@ -287,11 +288,9 @@ public class Application extends Gadget<UserPreferences> {
         tree.addCloseHandler(this.getCloseHandler());
         tree.addOpenHandler(this.getOpenHandler());
         tree.addSelectionHandler(this.getSelectionHandler());
-
         tree.setAnimationEnabled(true);
         tree.setSize("100%", "100%");
         //final TreeItem rootItem = tree.addItem(getItemString("Sites", resources.treeRoot()));
-
         final TreeNode rootNode = new TreeNode("Sites");
         final TreeItem rootItem = createItem(rootNode);
         tree.addItem(rootItem);
@@ -388,8 +387,7 @@ public class Application extends Gadget<UserPreferences> {
                 String text = target.getText();
                 target.setText("Loading items");
 
-                int count = target.getChildCount();
-                if (count > 0) {
+                if (target.getChildCount() > 0) {
                     TreeItem it = target.getChild(0);
                     if (it instanceof PendingItem) {
                         target.removeItem(it);
@@ -401,7 +399,7 @@ public class Application extends Gadget<UserPreferences> {
                             new AsyncCallback<TreeNode>() {
 
                                 public void onFailure(Throwable caught) {
-                                    Window.alert("Fail to update the tree items "
+                                    Window.alert("Fail to update the tree items <br />"
                                             + caught);
                                     Application.this.details.setHTML("Failed to load sub-tree");
                                 }
@@ -410,6 +408,9 @@ public class Application extends Gadget<UserPreferences> {
 
                                     for (TreeNode tnChild : result.getChildren()) {
                                         TreeItem it = Application.this.createItem(tnChild);
+                                        if (!tnChild.getChildren().isEmpty()) {
+                                            it.addItem(new PendingItem());
+                                        }
                                         target.addItem(it);
                                     }
                                 }

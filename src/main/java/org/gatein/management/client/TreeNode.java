@@ -156,7 +156,7 @@ public class TreeNode implements Serializable {
      * @return the path
      */
     public String getPath() {
-        return (this.parent != null ? this.parent.getPath() : "") + " > " + this.text;
+        return (this.parent != null ? this.parent.getPath() : "") + " &raquo; " + this.text;
     }
 
     /**

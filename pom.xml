@@ -37,7 +37,6 @@
             <version>${gwtupload.version}</version>
         </dependency>
 
-
         <!-- Gatein Management -->
         <dependency>
             <groupId>org.gatein.management.portalobjects</groupId>
