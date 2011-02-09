@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 import org.exoplatform.commons.utils.LazyPageList;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.portal.config.DataStorage;
 import org.exoplatform.portal.config.Query;
 import org.exoplatform.portal.config.model.Page;
@@ -82,6 +83,7 @@ public final class PortalService {
     protected void initService() {
         //this.container = ExoContainerContext.getCurrentContainer();
         this.container = PortalContainer.getInstance();
+        RequestLifeCycle.begin(container);
         this.checkSession();
         this.dataStorage = (DataStorage) container.getComponentInstanceOfType(DataStorage.class);
         this.exportHandler = (ExportHandler) container.getComponentInstanceOfType(ExportHandler.class);
@@ -100,9 +102,9 @@ public final class PortalService {
      * 
      */
     public static void remove() {
+        instance.get().end();
         instance.remove();
     }
-
 
     /**
      * Retrieve the {@code PortalConfig} having the given type
@@ -303,5 +305,12 @@ public final class PortalService {
         if (mgr.getSession() == null) {
             mgr.openSession();
         }
+    }
+
+    /**
+     * 
+     */
+    public void end() {
+        RequestLifeCycle.end();
     }
 }

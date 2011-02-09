@@ -49,7 +49,7 @@
     </dependencies>
 
     <build>
-        <finalName>GateInManagement</finalName>
+        <finalName>gatein-management-gadget</finalName>
         <!--outputDirectory>target/war/WEB-INF/classes</outputDirectory -->
         <plugins>
             <plugin>
