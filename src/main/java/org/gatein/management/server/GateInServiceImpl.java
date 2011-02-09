@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.gatein.management.client.GateInService;
 import org.gatein.management.client.TreeNode;
+import org.gatein.management.server.context.CustomContext;
 import org.gatein.management.server.util.PortalService;
 import org.gatein.mop.api.workspace.Site;
 
@@ -61,17 +62,16 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
      */
     public TreeNode updateItem(TreeNode tn) {
         String name = tn.getText();
-        PortalService portalService = PortalService.getInstance();
+        PortalService portalService = CustomContext.getInstance().getPortalService();
 
         // TODO
 
-        PortalService.remove();
         return tn;
     }
 
     /**
      * 
-     * @param item
+     * @param tn
      * @throws Exception
      */
     public String updateNodeInfo(TreeNode tn) throws Exception {
@@ -95,7 +95,7 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
      */
     public List<TreeNode> getRootNodes() throws Exception {
 
-        PortalService portalService = PortalService.getInstance();
+        PortalService portalService = CustomContext.getInstance().getPortalService();
 
         Collection<PortalConfig> portalSites = portalService.getPortalConfigs(PortalConfig.PORTAL_TYPE);
         Collection<PortalConfig> groupSites = portalService.getPortalConfigs(PortalConfig.GROUP_TYPE);
@@ -108,9 +108,6 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
         nodes.add(portalNode);
         nodes.add(groupNode);
         nodes.add(userNode);
-
-        // clean up thread instance
-        PortalService.remove();
 
         return nodes;
     }
@@ -153,7 +150,7 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
      * @param name
      */
     public void exportSite(String type, String name) {
-        PortalService portalService = PortalService.getInstance();
+        PortalService portalService = CustomContext.getInstance().getPortalService();
 
         try {
             HttpServletResponse resp = getThreadLocalResponse();
@@ -167,8 +164,6 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
             logger.log(Level.SEVERE, "Error while exporting site : type = {0}, name = {1}, error message = {2}",
                     new String[]{type, name, ex.getMessage()});
             ex.printStackTrace();
-        } finally {
-            PortalService.remove();
         }
     }
 

@@ -26,6 +26,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.gatein.management.server.context.CustomContext;
 import org.gatein.management.server.util.PortalService;
 import org.gatein.management.server.util.ProcessException;
 
@@ -59,15 +61,14 @@ public class FileDownloadServlet extends HttpServlet {
 
         OutputStream os = response.getOutputStream();
         try {
-            PortalService.getInstance().exportSite(type, name, os);
+            PortalService service = CustomContext.getInstance().getPortalService();
+            service.exportSite(type, name, os);
             os.flush();
             os.close();
         } catch (IOException exp) {
             throw exp;
         } catch (ProcessException ex) {
             Logger.getLogger(FileDownloadServlet.class.getName()).log(Level.SEVERE, "", ex);
-        } finally {
-            PortalService.remove();
         }
     }
 
