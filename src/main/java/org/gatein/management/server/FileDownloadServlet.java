@@ -18,18 +18,19 @@
  */
 package org.gatein.management.server;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.exoplatform.container.ExoContainer;
+import org.gatein.common.logging.Logger;
+import org.gatein.common.logging.LoggerFactory;
+import org.gatein.management.server.util.PortalService;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
 
-import org.gatein.management.server.context.CustomContext;
-import org.gatein.management.server.util.PortalService;
-import org.gatein.management.server.util.ProcessException;
+import static org.gatein.management.server.ContainerRequestHandler.doInRequest;
 
 /**
  * {@code FileDownloadServlet}
@@ -40,6 +41,8 @@ import org.gatein.management.server.util.ProcessException;
  * @version 1.0
  */
 public class FileDownloadServlet extends HttpServlet {
+
+    private static final Logger log = LoggerFactory.getLogger(FileDownloadServlet.class);
 
     /**
      * Create a new instance of {@code FileDownloadServlet}
@@ -52,23 +55,32 @@ public class FileDownloadServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String type = request.getParameter("ownerType");
-        String name = request.getParameter("ownerId");
-        System.out.println("ownerType : " + type + ", ownerId : " + name);
-        response.setContentType("application/octet-stream");
+        final String type = request.getParameter("ownerType");
+        final String name = request.getParameter("ownerId");
+        String pc = request.getParameter("pc");
+
+        response.setContentType("application/octet-stream; charset=UTF-8");
         String filename = type + "_" + name + ".zip";
         response.setHeader("Content-disposition", "attachment; filename=\"" + filename + "\"");
 
-        OutputStream os = response.getOutputStream();
+        final OutputStream os = response.getOutputStream();
         try {
-            PortalService service = CustomContext.getInstance().getPortalService();
-            service.exportSite(type, name, os);
+            doInRequest(pc, new ContainerCallback<Void>() {
+                @Override
+                public Void doInContainer(ExoContainer container) throws Exception {
+                    PortalService service = PortalService.create(container);
+                    service.exportSite(type, name, os);
+                    return null;
+                }
+            });
             os.flush();
-            os.close();
-        } catch (IOException exp) {
-            throw exp;
-        } catch (ProcessException ex) {
-            Logger.getLogger(FileDownloadServlet.class.getName()).log(Level.SEVERE, "", ex);
+        }
+        catch (Exception e)
+        {
+            log.error("Error during download.", e);
+        }
+        finally {
+            if (os != null) os.close();
         }
     }
 

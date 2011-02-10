@@ -19,15 +19,18 @@
 package org.gatein.management.server;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import org.exoplatform.container.ExoContainer;
+import org.exoplatform.portal.config.model.PortalConfig;
+import org.gatein.management.client.GateInService;
+import org.gatein.management.client.TreeNode;
+import org.gatein.management.server.util.PortalService;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
-import org.exoplatform.portal.config.model.PortalConfig;
-import org.gatein.management.client.GateInService;
-import org.gatein.management.client.TreeNode;
-import org.gatein.management.server.context.CustomContext;
-import org.gatein.management.server.util.PortalService;
+
+import static org.gatein.management.server.ContainerRequestHandler.doInRequest;
 
 /**
  * {@code GateInServiceImpl}
@@ -53,15 +56,14 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
      *
      * @param tn The item to be updated
      */
-    public TreeNode updateItem(TreeNode tn) {
+    public TreeNode updateItem(String containerName, TreeNode tn) {
         String name = tn.getText();
-        PortalService portalService = CustomContext.getInstance().getPortalService();
-
-        // TODO
-
-
-        CustomContext.getInstance().end();
-
+//        doInRequest(portalContainer, new ContainerCallback<Void>() {
+//            @Override
+//            public Void doInContainer(ExoContainer container) {
+//                return null;
+//            }
+//        });
         return tn;
     }
 
@@ -70,23 +72,27 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
      * @return
      * @throws Exception
      */
-    public List<TreeNode> getRootNodes() throws Exception {
+    public List<TreeNode> getRootNodes(String containerName) throws Exception {
 
-        PortalService portalService = CustomContext.getInstance().getPortalService();
+        return doInRequest(containerName, new ContainerCallback<List<TreeNode>>() {
+            public List<TreeNode> doInContainer(ExoContainer container) {
 
-        Collection<PortalConfig> portalSites = portalService.getPortalConfigs(PortalConfig.PORTAL_TYPE);
-        Collection<PortalConfig> groupSites = portalService.getPortalConfigs(PortalConfig.GROUP_TYPE);
-        Collection<PortalConfig> userSites = portalService.getPortalConfigs(PortalConfig.USER_TYPE);
-        // create root nodes
-        TreeNode portalNode = getRootNode(PortalConfig.PORTAL_TYPE, "Portal sites", portalSites);
-        TreeNode groupNode = getRootNode(PortalConfig.GROUP_TYPE, "Group sites", groupSites);
-        TreeNode userNode = getRootNode(PortalConfig.USER_TYPE, "User sites", userSites);
-        List<TreeNode> nodes = new ArrayList<TreeNode>();
-        nodes.add(portalNode);
-        nodes.add(groupNode);
-        nodes.add(userNode);
+                PortalService portalService = PortalService.create(container);
+                Collection<PortalConfig> portalSites = portalService.getPortalConfigs(PortalConfig.PORTAL_TYPE);
+                Collection<PortalConfig> groupSites = portalService.getPortalConfigs(PortalConfig.GROUP_TYPE);
+                Collection<PortalConfig> userSites = portalService.getPortalConfigs(PortalConfig.USER_TYPE);
+                // create root nodes
+                TreeNode portalNode = getRootNode(PortalConfig.PORTAL_TYPE, "Portal sites", portalSites);
+                TreeNode groupNode = getRootNode(PortalConfig.GROUP_TYPE, "Group sites", groupSites);
+                TreeNode userNode = getRootNode(PortalConfig.USER_TYPE, "User sites", userSites);
+                List<TreeNode> nodes = new ArrayList<TreeNode>();
+                nodes.add(portalNode);
+                nodes.add(groupNode);
+                nodes.add(userNode);
 
-        return nodes;
+                return nodes;
+            }
+        });
     }
 
     /**

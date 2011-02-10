@@ -38,12 +38,12 @@ public interface GateInService extends RemoteService {
      * @param item
      * @throws Exception
      */
-    public TreeNode updateItem(TreeNode item) throws Exception;
+    public TreeNode updateItem(String containerName, TreeNode item) throws Exception;
 
     /**
      * 
      * @return
      * @throws Exception
      */
-    public List<TreeNode> getRootNodes() throws Exception;
+    public List<TreeNode> getRootNodes(String containerName) throws Exception;
 }

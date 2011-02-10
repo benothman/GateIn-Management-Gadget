@@ -20,20 +20,23 @@ package org.gatein.management.server;
 
 import gwtupload.server.UploadAction;
 import gwtupload.server.exceptions.UploadActionException;
+import org.apache.commons.fileupload.FileItem;
+import org.exoplatform.container.ExoContainer;
+import org.gatein.common.logging.Logger;
+import org.gatein.common.logging.LoggerFactory;
+import org.gatein.management.server.util.PortalService;
+import org.gatein.management.server.util.ProcessException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.logging.Level;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.fileupload.FileItem;
-import org.gatein.management.server.context.CustomContext;
-import org.gatein.management.server.util.PortalService;
-import org.gatein.management.server.util.ProcessException;
+
+import static org.gatein.management.server.ContainerRequestHandler.doInRequest;
 
 /**
  * {@code FileUploadServlet}
@@ -45,34 +48,14 @@ import org.gatein.management.server.util.ProcessException;
  */
 public class FileUploadServlet extends UploadAction {
 
+    private static final Logger log = LoggerFactory.getLogger(FileUploadServlet.class);
+
     private static final long serialVersionUID = 1L;
     private Hashtable<String, String> receivedContentTypes = new Hashtable<String, String>();
     /**
      * Maintain a list with received files and their content types.
      */
     private Hashtable<String, File> receivedFiles = new Hashtable<String, File>();
-
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        try {
-            super.doGet(request, response);
-        } catch (Exception exp) {
-            // used just for debug -> will be removed
-            logger.error("doGet error -> " + exp.getMessage());
-            exp.printStackTrace();
-        }
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        try {
-            super.doPost(request, response);
-        } catch (Exception exp) {
-            // used just for debug -> will be removed 
-            logger.error("doPost error -> " + exp.getMessage());
-            exp.printStackTrace();
-        }
-    }
 
     /**
      * Override executeAction to save the received files in a custom place
@@ -97,7 +80,7 @@ public class FileUploadServlet extends UploadAction {
                     receivedContentTypes.put(item.getFieldName(), item.getContentType());
 
                     // process the uploaded file
-                    processImport(new FileInputStream(file));
+                    processImport(request.getParameter("pc"), new FileInputStream(file));
                     /// Compose a xml message with the full file information which can be parsed in client side
                     response += "<file-" + cont + "-field>" + item.getFieldName() + "</file-" + cont + "-field>\n";
                     response += "<file-" + cont + "-name>" + item.getName() + "</file-" + cont + "-name>\n";
@@ -150,16 +133,24 @@ public class FileUploadServlet extends UploadAction {
     /**
      * Try to import the site from the zip file opened by the given input stream
      *
+     * @param containerName portal container name for the request.
      * @param in the input stream pointing to the zip file
      * @throws Exception 
      */
-    private void processImport(InputStream in) throws Exception {
-        try {
-            PortalService portalService = CustomContext.getInstance().getPortalService();
-            portalService.importSite(in);
-        } catch (Exception ex) {
-            logger.error("process import error -> " + ex.getMessage());
-            throw new ProcessException("Import process failed", ex);
-        }
+    private void processImport(String containerName, final InputStream in) throws Exception {
+
+        doInRequest(containerName, new ContainerCallback<Void>() {
+            @Override
+            public Void doInContainer(ExoContainer container) throws Exception {
+                try {
+                    PortalService service = PortalService.create(container);
+                    service.importSite(in);
+                    return null;
+                } catch (Exception ex) {
+                    log.error("Error during import.", ex);
+                    throw new ProcessException("Import process failed. See server log for more details.");
+                }
+            }
+        });
     }
 }

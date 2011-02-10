@@ -34,14 +34,15 @@ public interface GateInServiceAsync {
     /**
      * Update the Tree item asynchronously
      *
+     * @param portalContainerName name of portal container
      * @param item The item to be updated
-     * @param asyncCallback
+     * @param asyncCallback asynchronous callback
      */
-    public void updateItem(TreeNode item, AsyncCallback<TreeNode> asyncCallback);
+    public void updateItem(String portalContainerName, TreeNode item, AsyncCallback<TreeNode> asyncCallback);
 
     /**
-     * 
-     * @param asyncCallback
+     * @param portalContainerName name of portal container
+     * @param asyncCallback asynchronous callback
      */
-    public void getRootNodes(AsyncCallback<List<TreeNode>> asyncCallback);
+    public void getRootNodes(String portalContainerName, AsyncCallback<List<TreeNode>> asyncCallback);
 }
