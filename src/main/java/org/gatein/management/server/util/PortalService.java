@@ -230,10 +230,29 @@ public final class PortalService {
      * @param in the input stream pointing to the file containing the data of the
      * site to import to the portal.
      */
-    public void importSite(InputStream in) throws Exception {
+    public void importSite(InputStream in, boolean overwrite) throws Exception {
         ImportContext context = importHandler.createContext(in);
         //TODO: Add the ability to overwrite everything
         //context.setOverwrite(true);
+        context.setOverwrite(overwrite);
         this.importHandler.importContext(context);
+    }
+
+
+    /*
+     List<PortalContainer> pcs = (List<PortalContainer>) RootContainer.getInstance().getComponentInstancesOfType(PortalContainer.class);
+     */
+
+
+
+    /**
+     * 
+     * @param query
+     * @return
+     */
+    public List<String> getUsers(String query) {
+        
+
+        return Collections.EMPTY_LIST;
     }
 }

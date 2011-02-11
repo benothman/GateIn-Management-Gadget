@@ -20,6 +20,7 @@ package org.gatein.management.client;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+import com.google.gwt.user.client.ui.SuggestOracle;
 import java.util.List;
 
 /**
@@ -46,4 +47,19 @@ public interface GateInService extends RemoteService {
      * @throws Exception
      */
     public List<TreeNode> getRootNodes() throws Exception;
+
+    /**
+     * 
+     * @param username
+     * @return
+     */
+    public TreeNode getUserSite(String username);
+
+
+    /**
+     * 
+     * @param req
+     * @return
+     */
+    public SuggestOracle.Response getUsername(SuggestOracle.Request request);
 }

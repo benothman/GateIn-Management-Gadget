@@ -18,46 +18,51 @@
  */
 package org.gatein.management.client;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.SuggestOracle.Request;
-import com.google.gwt.user.client.ui.SuggestOracle.Response;
-import java.util.List;
+import com.google.gwt.user.client.rpc.IsSerializable;
+import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
+import java.io.Serializable;
 
 /**
- * {@code GateInServiceAsync}
+ * {@code ItemSuggestion}
  *
- * Created on Jan 3, 2011, 12:29:53 PM
+ * Created on Feb 10, 2011, 12:42:05 PM
  *
- * @author Nabil Benothman
+ * @author <a href="mailto:nbenothm@redhat.com">Nabil Benothman</a>
  * @version 1.0
  */
-public interface GateInServiceAsync {
+public class ItemSuggestion implements IsSerializable, Suggestion, Serializable {
+
+    private String value;
 
     /**
-     * Update the Tree item asynchronously
-     *
-     * @param item The item to be updated
-     * @param asyncCallback
+     * Create a new instance of {@code ItemSuggestion}
      */
-    public void updateItem(TreeNode item, AsyncCallback<TreeNode> asyncCallback);
+    public ItemSuggestion() {
+        this("");
+    }
+
+    /**
+     * Create a new instance of {@code ItemSuggestion}
+     * 
+     * @param value
+     */
+    public ItemSuggestion(String value) {
+        this.value = value;
+    }
 
     /**
      * 
-     * @param asyncCallback
+     * @return
      */
-    public void getRootNodes(AsyncCallback<List<TreeNode>> asyncCallback);
+    public String getDisplayString() {
+        return this.value;
+    }
 
     /**
      * 
-     * @param req
-     * @param asyncCallback
+     * @return
      */
-    public void getUsername(Request req, AsyncCallback<Response> asyncCallback);
-
-    /**
-     * 
-     * @param username
-     * @param asyncCallback
-     */
-    public void getUserSite(String username, AsyncCallback<TreeNode> asyncCallback);
+    public String getReplacementString() {
+        return this.value;
+    }
 }

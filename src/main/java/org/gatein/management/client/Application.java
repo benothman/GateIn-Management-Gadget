@@ -39,16 +39,17 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
 import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.NamedFrame;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -57,11 +58,8 @@ import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import gwtupload.client.IUploadStatus.Status;
-import gwtupload.client.IUploader;
+import com.google.gwt.user.client.ui.Widget;
 import gwtupload.client.MultiUploader;
-import gwtupload.client.PreloadedImage;
-import gwtupload.client.PreloadedImage.OnLoadPreloadedImageHandler;
 import java.util.List;
 
 /**
@@ -89,6 +87,7 @@ public class Application extends Gadget<UserPreferences> {
     private HTML header;
     private HTML details;
     private Button exportButton;
+    private Frame frame;
     private String exportHref = "";
 
     @Override
@@ -144,14 +143,13 @@ public class Application extends Gadget<UserPreferences> {
         centerAbsolutePanel.add(html, 10, 43);
         html.setSize("380px", "14px");
 
-        final Frame frame = new NamedFrame("download-frame");
+        this.frame = new NamedFrame("download-frame");
         frame.setStyleName("download-frame");
         rootPanel.add(frame);
 
         this.exportButton = new Button("Export site", new ClickHandler() {
 
             public void onClick(ClickEvent event) {
-                //Window.open(exportHref, "_blank", "");
                 frame.setUrl(exportHref);
             }
         });
@@ -172,20 +170,9 @@ public class Application extends Gadget<UserPreferences> {
 
         decoratorPanelEast.setWidget(absolutePanelImportLink);
 
-        decoratedTabPanel.add(absolutePanel, "Export file/app", false);
-
-        AbsolutePanel userManagementPanel = new AbsolutePanel();
-        decoratedTabPanel.add(userManagementPanel, "User management", false);
-        userManagementPanel.setSize("99%", "304px");
-
-        Label usernameLabel = new Label("Enter a user name:");
-        usernameLabel.setDirectionEstimator(true);
-        userManagementPanel.add(usernameLabel, 10, 10);
-        usernameLabel.setSize("746px", "38px");
-
-        SuggestBox suggestBox = new SuggestBox();
-        userManagementPanel.add(suggestBox, 10, 40);
-        suggestBox.setSize("215px", "20px");
+        decoratedTabPanel.add(absolutePanel, "Export/Import sites", false);
+        Widget userManagementWidget = getUserManagementTab();
+        decoratedTabPanel.add(userManagementWidget, "User management", false);
 
         final DialogBox dialogBox = createDialogBox();
         importAnchor.addClickHandler(new ClickHandler() {
@@ -201,8 +188,9 @@ public class Application extends Gadget<UserPreferences> {
     }
 
     /**
-     * 
-     * @return
+     * Create and return the dialog box for the site upload.
+     *
+     * @return a {@code DialogBox}
      */
     private DialogBox createDialogBox() {
         // Create a dialog box
@@ -221,41 +209,58 @@ public class Application extends Gadget<UserPreferences> {
         Label label = new Label("Select a file to import : ");
         dialogContents.add(label);
 
+        /*
         final FlowPanel panelImages = new FlowPanel();
 
         final OnLoadPreloadedImageHandler showImage = new OnLoadPreloadedImageHandler() {
 
-            public void onLoad(PreloadedImage img) {
-                img.setWidth("75px");
-                panelImages.add(img);
-            }
+        public void onLoad(PreloadedImage img) {
+        img.setWidth("75px");
+        panelImages.add(img);
+        }
         };
         IUploader.OnFinishUploaderHandler onFinishUploaderHandler = new IUploader.OnFinishUploaderHandler() {
 
-            public void onFinish(IUploader uploader) {
-                if (uploader.getStatus() == Status.SUCCESS) {
-                    new PreloadedImage(uploader.fileUrl(), showImage);
-                }
-            }
+        public void onFinish(IUploader uploader) {
+        if (uploader.getStatus() == Status.SUCCESS) {
+        new PreloadedImage(uploader.fileUrl(), showImage);
+        }
+        }
         };
+         * 
+         */
 
-        MultiUploader uploader = new MultiUploader();
+        final MultiUploader uploader = new MultiUploader();
         // Add a finish handler which will load the image once the upload finishes
-        uploader.addOnFinishUploadHandler(onFinishUploaderHandler);
+        //uploader.addOnFinishUploadHandler(onFinishUploaderHandler);
         //defaultUploader.setMaximumFiles(3);
         // You can add customized parameters to servlet call
-        uploader.setServletPath(UPLOAD_ACTION_URL);
+        uploader.setServletPath(UPLOAD_ACTION_URL + "?overwrite=false");
         //defaultUploader.avoidRepeatFiles(true);
 
         dialogContents.add(uploader);
 
         AbsolutePanel absolutePanel = new AbsolutePanel();
-        absolutePanel.setSize("400px", "150px");
+        absolutePanel.setSize("400px", "50px");
         dialogContents.add(absolutePanel);
         dialogContents.setCellHorizontalAlignment(
                 absolutePanel, HasHorizontalAlignment.ALIGN_LEFT);
 
-        absolutePanel.add(panelImages, 10, 10);
+        //absolutePanel.add(panelImages, 10, 10);
+
+        final CheckBox overwriteBox = new CheckBox("Overwrite existing site");
+        overwriteBox.setTitle("If you want to force overwriting an existing site, check this checkbox");
+        overwriteBox.addClickHandler(new ClickHandler() {
+
+            public void onClick(ClickEvent event) {
+                if (overwriteBox.getValue()) {
+                    uploader.setServletPath(UPLOAD_ACTION_URL + "?overwrite=true");
+                } else {
+                    uploader.setServletPath(UPLOAD_ACTION_URL + "?overwrite=false");
+                }
+            }
+        });
+        absolutePanel.add(overwriteBox);
 
         // Add a close button at the bottom of the dialog
         Button closeButton = new Button("Close", new ClickHandler() {
@@ -275,6 +280,96 @@ public class Application extends Gadget<UserPreferences> {
         }
 
         return dialogBox;
+    }
+
+    /**
+     * Create the user management content tab
+     *
+     * @return a {@code Widget} for the user management tab
+     */
+    private Widget getUserManagementTab() {
+        AbsolutePanel userManagementPanel = new AbsolutePanel();
+        userManagementPanel.setSize("855px", "304px");
+
+        DecoratorPanel decoratorPanelEast = new DecoratorPanel();
+        userManagementPanel.add(decoratorPanelEast, 0, 10);
+        decoratorPanelEast.setSize("245px", "295px");
+
+        AbsolutePanel absolutePanelEast = new AbsolutePanel();
+        decoratorPanelEast.setWidget(absolutePanelEast);
+        absolutePanelEast.setSize("235px", "285px");
+
+        Label lblNewLabel = new Label("Enter a username :");
+        lblNewLabel.setDirectionEstimator(true);
+        absolutePanelEast.add(lblNewLabel, 10, 10);
+        lblNewLabel.setSize("205px", "29px");
+
+        final SuggestBox suggestBox = new SuggestBox(new ItemSuggestOracle());
+        absolutePanelEast.add(suggestBox, 10, 45);
+        suggestBox.setSize("210px", "21px");
+
+        final InlineHTML userHeader = new InlineHTML("Select user");
+        userHeader.setStyleName("header-style");
+        final HTML userDetails = new HTML("No user selected", true);
+        final Button exportBtn = new Button("Export site");
+
+        Button showUserbtn = new Button("Show", new ClickHandler() {
+
+            public void onClick(ClickEvent event) {
+                String username = suggestBox.getValue();
+                gtnService.getUserSite(username, new AsyncCallback<TreeNode>() {
+
+                    public void onFailure(Throwable caught) {
+                        exportBtn.setEnabled(false);
+                        userHeader.setHTML("Failed to access remote server");
+                        userDetails.setHTML(caught.getMessage());
+                    }
+
+                    public void onSuccess(TreeNode node) {
+                        if (node.isExportable()) {
+                            exportBtn.setEnabled(true);
+                            Application.this.exportHref = DOWNLOAD_ACTION_URL + "?ownerType=" + node.getType() + "&ownerId=" + node.getSiteName();
+                        } else {
+                            exportBtn.setEnabled(false);
+                            Application.this.exportHref = "#";
+                        }
+
+                        userHeader.setHTML(node.getSiteName());
+                        userDetails.setHTML(node.getNodeInfo());
+                    }
+                });
+            }
+        });
+        absolutePanelEast.add(showUserbtn, 69, 251);
+
+        DecoratorPanel decoratorPanelCenter = new DecoratorPanel();
+        userManagementPanel.add(decoratorPanelCenter, 251, 10);
+        decoratorPanelCenter.setSize("584px", "295px");
+
+        AbsolutePanel absolutePanelCenter = new AbsolutePanel();
+        absolutePanelCenter.setSize("587px", "285px");
+        decoratorPanelCenter.setWidget(absolutePanelCenter);
+
+        exportBtn.addClickHandler(new ClickHandler() {
+
+            public void onClick(ClickEvent event) {
+                frame.setUrl(exportHref);
+            }
+        });
+        exportBtn.setEnabled(false);
+        absolutePanelCenter.add(exportBtn, 10, 251);
+
+        absolutePanelCenter.add(userHeader, 10, 10);
+        userHeader.setSize("567px", "29px");
+
+        absolutePanelCenter.add(userDetails, 10, 101);
+        userDetails.setSize("567px", "144px");
+
+        InlineHTML nlnhtmlNewInlinehtml = new InlineHTML("<hr />");
+        absolutePanelCenter.add(nlnhtmlNewInlinehtml, 10, 45);
+        nlnhtmlNewInlinehtml.setSize("567px", "2px");
+
+        return userManagementPanel;
     }
 
     /**

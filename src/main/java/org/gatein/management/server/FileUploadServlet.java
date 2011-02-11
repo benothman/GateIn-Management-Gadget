@@ -96,8 +96,11 @@ public class FileUploadServlet extends UploadAction {
                     receivedFiles.put(item.getFieldName(), file);
                     receivedContentTypes.put(item.getFieldName(), item.getContentType());
 
+                    String overwriteVal = request.getParameter("overwrite");
+                    boolean overwrite = Boolean.parseBoolean(overwriteVal);
+
                     // process the uploaded file
-                    processImport(new FileInputStream(file));
+                    processImport(new FileInputStream(file), overwrite);
                     /// Compose a xml message with the full file information which can be parsed in client side
                     response += "<file-" + cont + "-field>" + item.getFieldName() + "</file-" + cont + "-field>\n";
                     response += "<file-" + cont + "-name>" + item.getName() + "</file-" + cont + "-name>\n";
@@ -153,10 +156,10 @@ public class FileUploadServlet extends UploadAction {
      * @param in the input stream pointing to the zip file
      * @throws Exception 
      */
-    private void processImport(InputStream in) throws Exception {
+    private void processImport(InputStream in, boolean overwrite) throws Exception {
         try {
             PortalService portalService = CustomContext.getInstance().getPortalService();
-            portalService.importSite(in);
+            portalService.importSite(in, overwrite);
         } catch (Exception ex) {
             logger.error("process import error -> " + ex.getMessage());
             throw new ProcessException("Import process failed", ex);

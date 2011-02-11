@@ -18,6 +18,9 @@
  */
 package org.gatein.management.server;
 
+import com.google.gwt.user.client.ui.SuggestOracle.Request;
+import com.google.gwt.user.client.ui.SuggestOracle.Response;
+import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,6 +28,7 @@ import java.util.List;
 import java.util.logging.Logger;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.gatein.management.client.GateInService;
+import org.gatein.management.client.ItemSuggestion;
 import org.gatein.management.client.TreeNode;
 import org.gatein.management.server.context.CustomContext;
 import org.gatein.management.server.util.PortalService;
@@ -59,8 +63,6 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
 
         // TODO
 
-
-        CustomContext.getInstance().end();
 
         return tn;
     }
@@ -119,5 +121,73 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
         }
 
         return tn;
+    }
+
+    /**
+     * 
+     * @param request
+     * @return
+     */
+    public Response getUsername(Request request) {
+        String query = request.getQuery();
+        System.out.println("The query is : " + query);
+
+        PortalService portalService = CustomContext.getInstance().getPortalService();
+        List<String> users = portalService.getUsers(query);
+        Response response = new Response();
+        List<Suggestion> suggestions = new ArrayList<Suggestion>();
+
+        for (String usr : users) {
+            suggestions.add(new ItemSuggestion(usr));
+        }
+
+        suggestions.add(new ItemSuggestion("nabil"));
+        suggestions.add(new ItemSuggestion("thomas"));
+        suggestions.add(new ItemSuggestion("laurence"));
+        suggestions.add(new ItemSuggestion("warda"));
+        suggestions.add(new ItemSuggestion("nick"));
+        suggestions.add(new ItemSuggestion("nicolas"));
+        suggestions.add(new ItemSuggestion("jean-fred"));
+        suggestions.add(new ItemSuggestion("toto"));
+        suggestions.add(new ItemSuggestion("mohamed"));
+
+
+        response.setSuggestions(suggestions);
+
+        return response;
+    }
+
+    /**
+     * 
+     * @param username
+     * @return
+     */
+    public TreeNode getUserSite(String username) {
+        PortalService portalService = CustomContext.getInstance().getPortalService();
+        TreeNode node = new TreeNode();
+        List<PortalConfig> userConf = portalService.getPortalConfigs(PortalConfig.USER_TYPE, username);
+        if (userConf.isEmpty()) {
+            node.setText("User not found");
+            node.setNodeInfo("No user with the username : " + username);
+        } else {
+            PortalConfig pc = userConf.get(0);
+            node.setText(pc.getName());
+            node.setType(pc.getType());
+            node.setExportable(true);
+            node.setSiteName(pc.getName());
+            StringBuilder sb = new StringBuilder("<ul>");
+            sb.append("<li> Name : ").append(pc.getName()).append("</li>");
+            sb.append("<li> Type : ").append(pc.getType()).append("</li>");
+            sb.append("<li> Skin : ").append(pc.getSkin()).append("</li>");
+            sb.append("<li> Edit permission : ").append(pc.getEditPermission()).append("</li>");
+            sb.append("<li> Access permissions : <ul>");
+            for (String s : pc.getAccessPermissions()) {
+                sb.append("<li>").append(s).append("</li>");
+            }
+            sb.append("</ul></li></ul>");
+            node.setNodeInfo(sb.toString());
+        }
+
+        return node;
     }
 }
