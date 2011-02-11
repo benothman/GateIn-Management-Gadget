@@ -39,7 +39,7 @@ public interface GateInService extends RemoteService {
      * @param item
      * @throws Exception
      */
-    public TreeNode updateItem(TreeNode item) throws Exception;
+    public TreeNode updateItem(String containerName, TreeNode item) throws Exception;
 
     /**
      * 
@@ -53,7 +53,7 @@ public interface GateInService extends RemoteService {
      * @param username
      * @return
      */
-    public TreeNode getUserSite(String username);
+    public TreeNode getUserSite(String containerName, String username) throws Exception;
 
 
     /**
@@ -61,5 +61,13 @@ public interface GateInService extends RemoteService {
      * @param req
      * @return
      */
-    public SuggestOracle.Response getUsername(SuggestOracle.Request request);
+    public SuggestOracle.Response getUsername(String containerName, SuggestOracle.Request request) throws Exception;
+
+    /**
+     * 
+     * @param containerName
+     * @return
+     * @throws Exception
+     */
+    public List<TreeNode> getRootNodes(String containerName) throws Exception;
 }

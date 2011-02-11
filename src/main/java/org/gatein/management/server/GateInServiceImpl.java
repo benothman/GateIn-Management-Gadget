@@ -22,16 +22,19 @@ import com.google.gwt.user.client.ui.SuggestOracle.Request;
 import com.google.gwt.user.client.ui.SuggestOracle.Response;
 import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.logging.Logger;
+import org.exoplatform.container.ExoContainer;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.gatein.management.client.GateInService;
 import org.gatein.management.client.ItemSuggestion;
 import org.gatein.management.client.TreeNode;
-import org.gatein.management.server.context.CustomContext;
 import org.gatein.management.server.util.PortalService;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.logging.Logger;
+
+import static org.gatein.management.server.ContainerRequestHandler.doInRequest;
 
 /**
  * {@code GateInServiceImpl}
@@ -57,13 +60,18 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
      *
      * @param tn The item to be updated
      */
-    public TreeNode updateItem(TreeNode tn) {
+    public TreeNode updateItem(String containerName, TreeNode tn) {
         String name = tn.getText();
-        PortalService portalService = CustomContext.getInstance().getPortalService();
 
         // TODO
 
 
+//        doInRequest(portalContainer, new ContainerCallback<Void>() {
+//            @Override
+//            public Void doInContainer(ExoContainer container) {
+//                return null;
+//            }
+//        });
         return tn;
     }
 
@@ -72,23 +80,28 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
      * @return
      * @throws Exception
      */
-    public List<TreeNode> getRootNodes() throws Exception {
+    public List<TreeNode> getRootNodes(String containerName) throws Exception {
 
-        PortalService portalService = CustomContext.getInstance().getPortalService();
+        return doInRequest(containerName, new ContainerCallback<List<TreeNode>>() {
 
-        Collection<PortalConfig> portalSites = portalService.getPortalConfigs(PortalConfig.PORTAL_TYPE);
-        Collection<PortalConfig> groupSites = portalService.getPortalConfigs(PortalConfig.GROUP_TYPE);
-        Collection<PortalConfig> userSites = portalService.getPortalConfigs(PortalConfig.USER_TYPE);
-        // create root nodes
-        TreeNode portalNode = getRootNode(PortalConfig.PORTAL_TYPE, "Portal sites", portalSites);
-        TreeNode groupNode = getRootNode(PortalConfig.GROUP_TYPE, "Group sites", groupSites);
-        TreeNode userNode = getRootNode(PortalConfig.USER_TYPE, "User sites", userSites);
-        List<TreeNode> nodes = new ArrayList<TreeNode>();
-        nodes.add(portalNode);
-        nodes.add(groupNode);
-        nodes.add(userNode);
+            public List<TreeNode> doInContainer(ExoContainer container) {
 
-        return nodes;
+                PortalService portalService = PortalService.create(container);
+                Collection<PortalConfig> portalSites = portalService.getPortalConfigs(PortalConfig.PORTAL_TYPE);
+                Collection<PortalConfig> groupSites = portalService.getPortalConfigs(PortalConfig.GROUP_TYPE);
+                Collection<PortalConfig> userSites = portalService.getPortalConfigs(PortalConfig.USER_TYPE);
+                // create root nodes
+                TreeNode portalNode = getRootNode(PortalConfig.PORTAL_TYPE, "Portal sites", portalSites);
+                TreeNode groupNode = getRootNode(PortalConfig.GROUP_TYPE, "Group sites", groupSites);
+                TreeNode userNode = getRootNode(PortalConfig.USER_TYPE, "User sites", userSites);
+                List<TreeNode> nodes = new ArrayList<TreeNode>();
+                nodes.add(portalNode);
+                nodes.add(groupNode);
+                nodes.add(userNode);
+
+                return nodes;
+            }
+        });
     }
 
     /**
@@ -128,33 +141,42 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
      * @param request
      * @return
      */
-    public Response getUsername(Request request) {
-        String query = request.getQuery();
-        System.out.println("The query is : " + query);
+    public Response getUsername(String containerName, final Request request) throws Exception {
 
-        PortalService portalService = CustomContext.getInstance().getPortalService();
-        List<String> users = portalService.getUsers(query);
-        Response response = new Response();
-        List<Suggestion> suggestions = new ArrayList<Suggestion>();
+        return doInRequest(containerName, new ContainerCallback<Response>() {
 
-        for (String usr : users) {
-            suggestions.add(new ItemSuggestion(usr));
-        }
+            public Response doInContainer(ExoContainer container) {
 
-        suggestions.add(new ItemSuggestion("nabil"));
-        suggestions.add(new ItemSuggestion("thomas"));
-        suggestions.add(new ItemSuggestion("laurence"));
-        suggestions.add(new ItemSuggestion("warda"));
-        suggestions.add(new ItemSuggestion("nick"));
-        suggestions.add(new ItemSuggestion("nicolas"));
-        suggestions.add(new ItemSuggestion("jean-fred"));
-        suggestions.add(new ItemSuggestion("toto"));
-        suggestions.add(new ItemSuggestion("mohamed"));
+                PortalService portalService = PortalService.create(container);
+
+                String query = request.getQuery();
+                System.out.println("The query is : " + query);
+
+                List<String> users = portalService.getUsers(query);
+                Response response = new Response();
+                List<Suggestion> suggestions = new ArrayList<Suggestion>();
+
+                for (String usr : users) {
+                    suggestions.add(new ItemSuggestion(usr));
+                }
+
+                suggestions.add(new ItemSuggestion("nabil"));
+                suggestions.add(new ItemSuggestion("thomas"));
+                suggestions.add(new ItemSuggestion("laurence"));
+                suggestions.add(new ItemSuggestion("warda"));
+                suggestions.add(new ItemSuggestion("nick"));
+                suggestions.add(new ItemSuggestion("nicolas"));
+                suggestions.add(new ItemSuggestion("jean-fred"));
+                suggestions.add(new ItemSuggestion("toto"));
+                suggestions.add(new ItemSuggestion("mohamed"));
 
 
-        response.setSuggestions(suggestions);
+                response.setSuggestions(suggestions);
 
-        return response;
+                return response;
+            }
+        });
+
     }
 
     /**
@@ -162,32 +184,44 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
      * @param username
      * @return
      */
-    public TreeNode getUserSite(String username) {
-        PortalService portalService = CustomContext.getInstance().getPortalService();
-        TreeNode node = new TreeNode();
-        List<PortalConfig> userConf = portalService.getPortalConfigs(PortalConfig.USER_TYPE, username);
-        if (userConf.isEmpty()) {
-            node.setText("User not found");
-            node.setNodeInfo("No user with the username : " + username);
-        } else {
-            PortalConfig pc = userConf.get(0);
-            node.setText(pc.getName());
-            node.setType(pc.getType());
-            node.setExportable(true);
-            node.setSiteName(pc.getName());
-            StringBuilder sb = new StringBuilder("<ul>");
-            sb.append("<li> Name : ").append(pc.getName()).append("</li>");
-            sb.append("<li> Type : ").append(pc.getType()).append("</li>");
-            sb.append("<li> Skin : ").append(pc.getSkin()).append("</li>");
-            sb.append("<li> Edit permission : ").append(pc.getEditPermission()).append("</li>");
-            sb.append("<li> Access permissions : <ul>");
-            for (String s : pc.getAccessPermissions()) {
-                sb.append("<li>").append(s).append("</li>");
-            }
-            sb.append("</ul></li></ul>");
-            node.setNodeInfo(sb.toString());
-        }
+    public TreeNode getUserSite(String containerName, final String username) throws Exception {
 
-        return node;
+        return doInRequest(containerName, new ContainerCallback<TreeNode>() {
+
+            @Override
+            public TreeNode doInContainer(ExoContainer container) throws Exception {
+                PortalService portalService = PortalService.create(container);
+                TreeNode node = new TreeNode();
+                List<PortalConfig> userConf = portalService.getPortalConfigs(PortalConfig.USER_TYPE, username);
+                if (userConf.isEmpty()) {
+                    node.setText("User not found");
+                    node.setNodeInfo("No user with the username : " + username);
+                } else {
+                    PortalConfig pc = userConf.get(0);
+                    node.setText(pc.getName());
+                    node.setType(pc.getType());
+                    node.setExportable(true);
+                    node.setSiteName(pc.getName());
+                    StringBuilder sb = new StringBuilder("<ul>");
+                    sb.append("<li> Name : ").append(pc.getName()).append("</li>");
+                    sb.append("<li> Type : ").append(pc.getType()).append("</li>");
+                    sb.append("<li> Skin : ").append(pc.getSkin()).append("</li>");
+                    sb.append("<li> Edit permission : ").append(pc.getEditPermission()).append("</li>");
+                    sb.append("<li> Access permissions : <ul>");
+                    for (String s : pc.getAccessPermissions()) {
+                        sb.append("<li>").append(s).append("</li>");
+                    }
+                    sb.append("</ul></li></ul>");
+                    node.setNodeInfo(sb.toString());
+                }
+
+                return node;
+
+            }
+        });
+    }
+
+    public List<TreeNode> getRootNodes() throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

@@ -19,6 +19,7 @@
 package org.gatein.management.server.util;
 
 import org.exoplatform.commons.utils.LazyPageList;
+import org.exoplatform.container.ExoContainer;
 import org.exoplatform.portal.config.DataStorage;
 import org.exoplatform.portal.config.Query;
 import org.exoplatform.portal.config.model.Page;
@@ -51,6 +52,14 @@ public final class PortalService {
     private DataStorage dataStorage;
     private ExportHandler exportHandler;
     private ImportHandler importHandler;
+
+    public static PortalService create(ExoContainer container) {
+        DataStorage dataStorage = (DataStorage) container.getComponentInstanceOfType(DataStorage.class);
+        ExportHandler exportHandler = (ExportHandler) container.getComponentInstanceOfType(ExportHandler.class);
+        ImportHandler importHandler = (ImportHandler) container.getComponentInstanceOfType(ImportHandler.class);
+
+        return new PortalService(dataStorage, exportHandler, importHandler);
+    }
 
     public PortalService(DataStorage dataStorage, ExportHandler exportHandler, ImportHandler importHandler) {
         this.dataStorage = dataStorage;
@@ -238,20 +247,13 @@ public final class PortalService {
         this.importHandler.importContext(context);
     }
 
-
-    /*
-     List<PortalContainer> pcs = (List<PortalContainer>) RootContainer.getInstance().getComponentInstancesOfType(PortalContainer.class);
-     */
-
-
-
     /**
      * 
      * @param query
      * @return
      */
     public List<String> getUsers(String query) {
-        
+
 
         return Collections.EMPTY_LIST;
     }

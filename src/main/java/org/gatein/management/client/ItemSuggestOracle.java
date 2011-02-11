@@ -51,8 +51,16 @@ public class ItemSuggestOracle extends SuggestOracle {
      */
     public void requestSuggestions(SuggestOracle.Request req, SuggestOracle.Callback callback) {
         GateInServiceAsync gtnService = GWT.create(GateInService.class);
-        gtnService.getUsername(req, new ItemSuggestCallback(req, callback));
+        gtnService.getUsername(getPortalContainerName(), req, new ItemSuggestCallback(req, callback));
     }
+
+    /**
+     * 
+     * @return
+     */
+    public native String getPortalContainerName()/*-{
+    return parent.eXo.env.portal.context.substring(1); // remove leading '/'
+    }-*/;
 
     /**
      * 

@@ -177,7 +177,6 @@ public class Application extends Gadget<UserPreferences> {
         final DialogBox dialogBox = createDialogBox();
         importAnchor.addClickHandler(new ClickHandler() {
 
-            @Override
             public void onClick(ClickEvent event) {
                 dialogBox.setPopupPosition(267, 60);
                 dialogBox.show();
@@ -185,7 +184,12 @@ public class Application extends Gadget<UserPreferences> {
         });
 
         decoratedTabPanel.selectTab(0);
+
     }
+
+    public native String getPortalContainerName()/*-{
+    return parent.eXo.env.portal.context.substring(1); // remove leading '/'
+    }-*/;
 
     /**
      * Create and return the dialog box for the site upload.
@@ -236,6 +240,8 @@ public class Application extends Gadget<UserPreferences> {
         //defaultUploader.setMaximumFiles(3);
         // You can add customized parameters to servlet call
         uploader.setServletPath(UPLOAD_ACTION_URL + "?overwrite=false");
+        uploader.setServletPath(UPLOAD_ACTION_URL + "?pc=" + getPortalContainerName());
+
         //defaultUploader.avoidRepeatFiles(true);
 
         dialogContents.add(uploader);
@@ -317,7 +323,7 @@ public class Application extends Gadget<UserPreferences> {
 
             public void onClick(ClickEvent event) {
                 String username = suggestBox.getValue();
-                gtnService.getUserSite(username, new AsyncCallback<TreeNode>() {
+                gtnService.getUserSite(getPortalContainerName(), username, new AsyncCallback<TreeNode>() {
 
                     public void onFailure(Throwable caught) {
                         exportBtn.setEnabled(false);
@@ -390,7 +396,8 @@ public class Application extends Gadget<UserPreferences> {
         final TreeItem rootItem = createItem(rootNode);
         tree.addItem(rootItem);
 
-        gtnService.getRootNodes(new AsyncCallback<List<TreeNode>>() {
+
+        gtnService.getRootNodes(getPortalContainerName(), new AsyncCallback<List<TreeNode>>() {
 
             public void onFailure(Throwable caught) {
                 Window.alert("Loading tree failure <br/>" + caught);
@@ -424,7 +431,8 @@ public class Application extends Gadget<UserPreferences> {
         hPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
         hPanel.add(new Image(image));
         HTML headerText = new HTML(text);
-        headerText.setStyleName("cw-StackPanelHeader");
+        // nabil, intellij was flagging this as a style not used, so i commented out
+        // headerText.setStyleName("cw-StackPanelHeader");
         hPanel.add(headerText);
 
         // Return the HTML string for the panel
@@ -457,7 +465,9 @@ public class Application extends Gadget<UserPreferences> {
                 Application.this.details.setHTML(node.getNodeInfo());
 
                 if (node.isExportable()) {
-                    Application.this.exportHref = DOWNLOAD_ACTION_URL + "?ownerType=" + node.getType() + "&ownerId=" + node.getSiteName();
+
+                    Application.this.exportHref = DOWNLOAD_ACTION_URL
+                            + "?ownerType=" + node.getType() + "&ownerId=" + node.getSiteName() + "&pc=" + getPortalContainerName();
                     Application.this.exportButton.setEnabled(true);
                 } else {
                     Application.this.exportButton.setEnabled(false);
@@ -490,7 +500,7 @@ public class Application extends Gadget<UserPreferences> {
                 }
 
                 if (target.getChildCount() == 0) {
-                    gtnService.updateItem(tn,
+                    gtnService.updateItem(getPortalContainerName(), tn,
                             new AsyncCallback<TreeNode>() {
 
                                 public void onFailure(Throwable caught) {
