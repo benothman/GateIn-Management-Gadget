@@ -53,18 +53,31 @@ public final class PortalService {
     private ExportHandler exportHandler;
     private ImportHandler importHandler;
 
+    /**
+     * Create a new instance of {@code PortalService}
+     * 
+     * @param dataStorage
+     * @param exportHandler
+     * @param importHandler
+     */
+    public PortalService(DataStorage dataStorage, ExportHandler exportHandler, ImportHandler importHandler) {
+        this.dataStorage = dataStorage;
+        this.exportHandler = exportHandler;
+        this.importHandler = importHandler;
+    }
+
+    /**
+     * Create a new instance of {@code PortalService}
+     *
+     * @param container The portal container
+     * @return a new instance of {@code PortalService}
+     */
     public static PortalService create(ExoContainer container) {
         DataStorage dataStorage = (DataStorage) container.getComponentInstanceOfType(DataStorage.class);
         ExportHandler exportHandler = (ExportHandler) container.getComponentInstanceOfType(ExportHandler.class);
         ImportHandler importHandler = (ImportHandler) container.getComponentInstanceOfType(ImportHandler.class);
 
         return new PortalService(dataStorage, exportHandler, importHandler);
-    }
-
-    public PortalService(DataStorage dataStorage, ExportHandler exportHandler, ImportHandler importHandler) {
-        this.dataStorage = dataStorage;
-        this.exportHandler = exportHandler;
-        this.importHandler = importHandler;
     }
 
     /**
@@ -254,6 +267,7 @@ public final class PortalService {
      */
     public List<String> getUsers(String query) {
 
+        
 
         return Collections.EMPTY_LIST;
     }

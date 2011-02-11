@@ -43,18 +43,10 @@ public interface GateInService extends RemoteService {
 
     /**
      * 
-     * @return
-     * @throws Exception
-     */
-    public List<TreeNode> getRootNodes() throws Exception;
-
-    /**
-     * 
      * @param username
      * @return
      */
     public TreeNode getUserSite(String containerName, String username) throws Exception;
-
 
     /**
      * 

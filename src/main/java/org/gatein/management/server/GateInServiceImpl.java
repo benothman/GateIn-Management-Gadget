@@ -221,7 +221,4 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
         });
     }
 
-    public List<TreeNode> getRootNodes() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 }
