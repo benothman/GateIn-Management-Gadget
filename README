@@ -65,8 +65,8 @@ To install the application, follow the instructions below:
 
 6) If you have server already running, you have to stop and restart it (hot dpeloy weakness!!)
 
-7) run the UNIX script "init.sh" to install gwt-gadget locally, since there is no repository for
-   the version 1.2.0.
+7) run the UNIX script "init.sh" to install gwt-gadget and smartgwt locally, since there is no
+   repository neither for the version 1.2.0 of gwt-gadgets nor for version 2.4 of smartgwt.
 
 8) Now you can build the gadget and deploy the war archive on your JBoss AS server.
 

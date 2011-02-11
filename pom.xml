@@ -37,6 +37,19 @@
             <version>${gwtupload.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.smartgwt</groupId>
+            <artifactId>smartgwt</artifactId>
+            <version>${smartgwt.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.smartgwt</groupId>
+            <artifactId>smartgwt-skins</artifactId>
+            <version>${smartgwt.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Gatein Management -->
         <dependency>
             <groupId>org.gatein.management.portalobjects</groupId>
@@ -130,6 +143,7 @@
         <gwt.version>2.1.0</gwt.version>
         <gwt.gadget.version>1.2.0</gwt.gadget.version>
         <gwtupload.version>0.6.3-compat</gwtupload.version>
+        <smartgwt.version>2.4</smartgwt.version>
       <!--  tell the compiler we can use 1.5 -->
         <maven.compiler.source>1.5</maven.compiler.source>
         <maven.compiler.target>1.5</maven.compiler.target>

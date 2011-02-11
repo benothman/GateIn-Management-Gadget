@@ -11,4 +11,10 @@ echo "\n[INFO] Installing the GWT gadgets jar file locally\n"
 mvn install:install-file -Dfile=gadgets/gwt-gadgets-1.2.0.jar -DgroupId=com.google.gwt.google-apis \
     -DartifactId=gwt-gadgets -Dversion=1.2.0 -Dpackaging=jar
 
+mvn install:install-file -Dfile=smartgwt/smartgwt.jar -DgroupId=com.smartgwt \
+    -DartifactId=smartgwt -Dversion=2.4 -Dpackaging=jar
+
+mvn install:install-file -Dfile=smartgwt/smartgwt-skins.jar -DgroupId=com.smartgwt \
+    -DartifactId=smartgwt-skins -Dversion=2.4 -Dpackaging=jar
+
 
