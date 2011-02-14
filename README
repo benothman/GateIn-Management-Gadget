@@ -21,15 +21,17 @@
 
 Author : Nabil Benothman <nbenothm@redhat.com>
 
-This project tends to provide a web GUI for import/export sites which is, until now, already 
-used with the command line. The later approach is not user friendly and not well adapted for
-some users. The idea is to implement a GWT gadget to simplify the import/export task.
+This project tends to provide a web GUI for import/export sites which is, until
+now, already used with the command line. The later approach is not user friendly
+and not well adapted for some users. The idea is to implement a GWT gadget to
+simplify the import/export task.
 
 To install the application, follow the instructions below:
 
-1) If you don't have maven installed yet, so start with downloading and installing 
-   it, you find all steps for that in the link below, to ensure that it was 
-   correctly installed, open a terminal window and type the following command :
+1) If you don't have maven installed yet, so start with downloading and 
+   installing it, you find all steps for that in the link below, to ensure that
+   it was correctly installed, open a terminal window and type the following 
+   command :
    
    ~home$ mvn --version
    
@@ -65,8 +67,8 @@ To install the application, follow the instructions below:
 
 6) If you have server already running, you have to stop and restart it (hot dpeloy weakness!!)
 
-7) run the UNIX script "init.sh" to install gwt-gadget and smartgwt locally, since there is no
-   repository neither for the version 1.2.0 of gwt-gadgets nor for version 2.4 of smartgwt.
+7) run the UNIX script "init.sh" to install gwt-gadget locally, since there is 
+   no repository for the version 1.2.0 of gwt-gadgets.
 
 8) Now you can build the gadget and deploy the war archive on your JBoss AS server.
 

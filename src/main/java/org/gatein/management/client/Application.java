@@ -59,6 +59,8 @@ import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import gwtupload.client.IUploadStatus.Status;
+import gwtupload.client.IUploader;
 import gwtupload.client.MultiUploader;
 import java.util.List;
 
@@ -213,60 +215,47 @@ public class Application extends Gadget<UserPreferences> {
         Label label = new Label("Select a file to import : ");
         dialogContents.add(label);
 
-        /*
-        final FlowPanel panelImages = new FlowPanel();
-
-        final OnLoadPreloadedImageHandler showImage = new OnLoadPreloadedImageHandler() {
-
-        public void onLoad(PreloadedImage img) {
-        img.setWidth("75px");
-        panelImages.add(img);
-        }
-        };
+        final Label status = new Label("");
         IUploader.OnFinishUploaderHandler onFinishUploaderHandler = new IUploader.OnFinishUploaderHandler() {
 
-        public void onFinish(IUploader uploader) {
-        if (uploader.getStatus() == Status.SUCCESS) {
-        new PreloadedImage(uploader.fileUrl(), showImage);
-        }
-        }
+            public void onFinish(IUploader uploader) {
+                if (uploader.getStatus() == Status.SUCCESS) {
+                    status.setText("File uploaded with success");
+                    status.setStyleName("success-style");
+                } else if (uploader.getStatus() == Status.ERROR) {
+                    status.setText("File upload error");
+                    status.setStyleName("error-style");
+                }
+            }
         };
-         * 
-         */
 
         final MultiUploader uploader = new MultiUploader();
         // Add a finish handler which will load the image once the upload finishes
-        //uploader.addOnFinishUploadHandler(onFinishUploaderHandler);
+        uploader.addOnFinishUploadHandler(onFinishUploaderHandler);
         //defaultUploader.setMaximumFiles(3);
         // You can add customized parameters to servlet call
-        uploader.setServletPath(UPLOAD_ACTION_URL + "?overwrite=false");
         uploader.setServletPath(UPLOAD_ACTION_URL + "?pc=" + getPortalContainerName());
-
-        //defaultUploader.avoidRepeatFiles(true);
+        uploader.avoidRepeatFiles(true);
 
         dialogContents.add(uploader);
 
         AbsolutePanel absolutePanel = new AbsolutePanel();
-        absolutePanel.setSize("400px", "50px");
+        absolutePanel.setSize("400px", "60px");
         dialogContents.add(absolutePanel);
         dialogContents.setCellHorizontalAlignment(
                 absolutePanel, HasHorizontalAlignment.ALIGN_LEFT);
-
-        //absolutePanel.add(panelImages, 10, 10);
 
         final CheckBox overwriteBox = new CheckBox("Overwrite existing site");
         overwriteBox.setTitle("If you want to force overwriting an existing site, check this checkbox");
         overwriteBox.addClickHandler(new ClickHandler() {
 
             public void onClick(ClickEvent event) {
-                if (overwriteBox.getValue()) {
-                    uploader.setServletPath(UPLOAD_ACTION_URL + "?overwrite=true");
-                } else {
-                    uploader.setServletPath(UPLOAD_ACTION_URL + "?overwrite=false");
-                }
+                String url = UPLOAD_ACTION_URL + "?pc=" + getPortalContainerName() + "&overwrite=" + overwriteBox.getValue();
+                uploader.setServletPath(url);
             }
         });
         absolutePanel.add(overwriteBox);
+        absolutePanel.add(status, 10, 30);
 
         // Add a close button at the bottom of the dialog
         Button closeButton = new Button("Close", new ClickHandler() {

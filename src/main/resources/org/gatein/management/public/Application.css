@@ -63,6 +63,17 @@ body {
     font: bold;
 }
 
+.success-style {
+    text-decoration: none;
+    color: #00ff00;
+    font: bold;
+}
+
+.error-style {
+    text-decoration: none;
+    color: #ff0000;
+    font: bold;
+}
 
 a {
     color: darkblue;

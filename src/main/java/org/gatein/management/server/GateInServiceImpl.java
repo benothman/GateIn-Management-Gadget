@@ -146,12 +146,8 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
         return doInRequest(containerName, new ContainerCallback<Response>() {
 
             public Response doInContainer(ExoContainer container) {
-
                 PortalService portalService = PortalService.create(container);
-
                 String query = request.getQuery();
-                System.out.println("The query is : " + query);
-
                 List<String> users = portalService.getUsers(query);
                 Response response = new Response();
                 List<Suggestion> suggestions = new ArrayList<Suggestion>();
@@ -170,13 +166,11 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
                 suggestions.add(new ItemSuggestion("toto"));
                 suggestions.add(new ItemSuggestion("mohamed"));
 
-
                 response.setSuggestions(suggestions);
 
                 return response;
             }
         });
-
     }
 
     /**
