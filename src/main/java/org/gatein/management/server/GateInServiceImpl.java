@@ -1,20 +1,23 @@
 /*
- *  Copyright (C) 2010 Red Hat, Inc. All rights reserved.
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2011, Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
  *
- *  This is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of
- *  the License, or (at your option) any later version.
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
  *
- *  This software is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- *  Lesser General Public License for more details.
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this software; if not, write to the Free
- *  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- *  02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 package org.gatein.management.server;
 
@@ -32,21 +35,20 @@ import org.gatein.management.server.util.PortalService;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Logger;
 
 import static org.gatein.management.server.ContainerRequestHandler.doInRequest;
 
 /**
  * {@code GateInServiceImpl}
- *
+ * <p>
+ * The {@code GateInService} remote servlet implementation.
+ * </p>
  * Created on Jan 3, 2011, 12:30:45 PM
  *
- * @author Nabil Benothman
+ * @author <a href="mailto:nbenothm@redhat.com">Nabil Benothman</a>
  * @version 1.0
  */
 public class GateInServiceImpl extends RemoteServiceServlet implements GateInService {
-
-    private static final Logger logger = Logger.getLogger(GateInService.class.getName());
 
     /**
      * Create a new instance of {@code GateInServiceImpl}
@@ -58,7 +60,10 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
     /**
      * Update the Tree item asynchronously
      *
-     * @param tn The item to be updated
+     * @param containerName name of portal container
+     * @param item The item to be updated
+     * @return the updated tree node
+     * @throws Exception
      */
     public TreeNode updateItem(String containerName, TreeNode tn) {
         String name = tn.getText();
@@ -76,8 +81,10 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
     }
 
     /**
-     * 
-     * @return
+     * Retrieve asynchronously the list of root nodes
+     *
+     * @param containerName The portal container name
+     * @return The list of the root nodes
      * @throws Exception
      */
     public List<TreeNode> getRootNodes(String containerName) throws Exception {
@@ -89,15 +96,12 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
                 PortalService portalService = PortalService.create(container);
                 Collection<PortalConfig> portalSites = portalService.getPortalConfigs(PortalConfig.PORTAL_TYPE);
                 Collection<PortalConfig> groupSites = portalService.getPortalConfigs(PortalConfig.GROUP_TYPE);
-                //Collection<PortalConfig> userSites = portalService.getPortalConfigs(PortalConfig.USER_TYPE);
                 // create root nodes
                 TreeNode portalNode = getRootNode(PortalConfig.PORTAL_TYPE, "Portal sites", portalSites);
                 TreeNode groupNode = getRootNode(PortalConfig.GROUP_TYPE, "Group sites", groupSites);
-                //TreeNode userNode = getRootNode(PortalConfig.USER_TYPE, "User sites", userSites);
                 List<TreeNode> nodes = new ArrayList<TreeNode>();
                 nodes.add(portalNode);
                 nodes.add(groupNode);
-                //nodes.add(userNode);
 
                 return nodes;
             }
@@ -105,10 +109,10 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
     }
 
     /**
-     *
+     * 
      * @param name
      * @param configs
-     * @return
+     * @return a tree sub-root node 
      */
     private TreeNode getRootNode(String type, String name, Collection<PortalConfig> configs) {
 
@@ -137,9 +141,12 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
     }
 
     /**
-     * 
-     * @param request
-     * @return
+     * Retrieve the list of usernames according to the user input
+     *
+     * @param containerName the portal container name
+     * @param request the user request
+     * @return a response with the relevant usernames
+     * @throws Exception
      */
     public Response getUsername(String containerName, final Request request) throws Exception {
 
@@ -162,9 +169,12 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
     }
 
     /**
-     * 
-     * @param username
-     * @return
+     * Lookup for the user site having the given username
+     *
+     * @param containerName the portal container name
+     * @param username the user name
+     * @return the tree node containing information about the user site (if exists)
+     * @throws Exception
      */
     public TreeNode getUserSite(String containerName, final String username) throws Exception {
 

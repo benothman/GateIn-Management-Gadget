@@ -1,5 +1,8 @@
 /*
- * Copyright (C) 2010 Red Hat, Inc. All rights reserved.
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2011, Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -48,10 +51,10 @@ import org.exoplatform.services.organization.UserHandler;
 
 /**
  * {@code PortalService}
- *
+ * <p/>
  * Created on Jan 5, 2011, 9:14:19 AM
  *
- * @author Nabil Benothman
+ * @author <a href="mailto:nbenothm@redhat.com">Nabil Benothman</a>
  * @version 1.0
  */
 public final class PortalService {
@@ -231,9 +234,10 @@ public final class PortalService {
     }
 
     /**
-     * 
-     * @param query
-     * @return
+     * Retrieve the list of usernames containing the user name part
+     *
+     * @param username the username part
+     * @return a list of usernames
      */
     public List<String> getUsers(String username) {
 
