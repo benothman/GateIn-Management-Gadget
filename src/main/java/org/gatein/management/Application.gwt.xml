@@ -23,7 +23,7 @@
     <inherits name="gwtupload.GWTUpload"/>
 
     <!-- Include SmartGWT library -->
-    <inherits name="com.smartgwt.SmartGwt"/>
+    <!--inherits name="com.smartgwt.SmartGwt"/ -->
 
     <!-- Specify the app entry point class.                         -->
     <entry-point class='org.gatein.management.client.Application'/>
