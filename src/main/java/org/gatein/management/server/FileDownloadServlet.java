@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Calendar;
 
 import static org.gatein.management.server.ContainerRequestHandler.doInRequest;
 
@@ -65,7 +66,7 @@ public class FileDownloadServlet extends HttpServlet {
         String pc = request.getParameter("pc");
 
         response.setContentType("application/octet-stream; charset=UTF-8");
-        String filename = type + "_" + name + ".zip";
+        String filename = type + "_" + name + "_" + getTimestamp() + ".zip";
         response.setHeader("Content-disposition", "attachment; filename=\"" + filename + "\"");
 
         final OutputStream os = response.getOutputStream();
@@ -93,5 +94,29 @@ public class FileDownloadServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         doGet(request, response);
+    }
+
+    /**
+     * @return a timestamp
+     */
+    private String getTimestamp() {
+        StringBuilder sb = new StringBuilder("");
+
+        Calendar calendar = Calendar.getInstance();
+        sb.append(calendar.get(Calendar.YEAR));
+
+        int month = calendar.get(Calendar.MONTH);
+        sb.append(month < 10 ? "0" + month : month);
+
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        sb.append(day < 10 ? "0" + day : day);
+
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        sb.append(hour < 10 ? "0" + hour : hour);
+
+        int minute = calendar.get(Calendar.MINUTE);
+        sb.append(minute < 10 ? "0" + minute : minute);
+
+        return sb.toString();
     }
 }

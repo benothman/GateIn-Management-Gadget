@@ -235,7 +235,8 @@ public class Application extends Gadget<UserPreferences> {
         final MultiUploader uploader = new MultiUploader();
         // Add a finish handler which will load the image once the upload finishes
         uploader.addOnFinishUploadHandler(onFinishUploaderHandler);
-        //defaultUploader.setMaximumFiles(3);
+        // accept only zip files
+        uploader.setValidExtensions(new String[]{"zip"});
         // You can add customized parameters to servlet call
         uploader.setServletPath(UPLOAD_ACTION_URL + "?pc=" + getPortalContainerName());
         uploader.avoidRepeatFiles(true);

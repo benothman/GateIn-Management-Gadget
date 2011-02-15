@@ -86,11 +86,7 @@ public class FileUploadServlet extends UploadAction {
                     String overwriteVal = request.getParameter("overwrite");
                     boolean overwrite = Boolean.parseBoolean(overwriteVal);
 
-                    System.out.println("overwrite : " + overwrite + ", portal containe : " + request.getParameter("pc"));
-
-
                     // process the uploaded file
-                    //processImport(new FileInputStream(file), overwrite);
                     processImport(request.getParameter("pc"), new FileInputStream(file), overwrite);
                     /// Compose a xml message with the full file information which can be parsed in client side
                     response += "<file-" + cont + "-field>" + item.getFieldName() + "</file-" + cont + "-field>\n";
