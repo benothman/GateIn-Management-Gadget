@@ -83,8 +83,9 @@ public class TreeNode implements Serializable {
     }
 
     /**
-     * 
-     * @param info
+     * Setter for the node info
+     *
+     * @param info the info to set
      */
     public void setNodeInfo(String info) {
         this.nodeInfo = info;
@@ -118,6 +119,8 @@ public class TreeNode implements Serializable {
     }
 
     /**
+     * Setter for the children
+     *
      * @param children the children to set
      */
     public void setChildren(List<TreeNode> children) {
@@ -132,6 +135,8 @@ public class TreeNode implements Serializable {
     }
 
     /**
+     * Setter for the text
+     * 
      * @param text the text to set
      */
     public void setText(String text) {

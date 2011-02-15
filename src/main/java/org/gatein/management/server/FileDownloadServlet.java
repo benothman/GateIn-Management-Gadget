@@ -66,6 +66,7 @@ public class FileDownloadServlet extends HttpServlet {
         final OutputStream os = response.getOutputStream();
         try {
             doInRequest(pc, new ContainerCallback<Void>() {
+
                 @Override
                 public Void doInContainer(ExoContainer container) throws Exception {
                     PortalService service = PortalService.create(container);
@@ -74,13 +75,12 @@ public class FileDownloadServlet extends HttpServlet {
                 }
             });
             os.flush();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             log.error("Error during download.", e);
-        }
-        finally {
-            if (os != null) os.close();
+        } finally {
+            if (os != null) {
+                os.close();
+            }
         }
     }
 

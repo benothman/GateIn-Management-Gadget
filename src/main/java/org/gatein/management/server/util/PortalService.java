@@ -29,14 +29,22 @@ import org.gatein.management.portalobjects.exportimport.api.ExportContext;
 import org.gatein.management.portalobjects.exportimport.api.ExportHandler;
 import org.gatein.management.portalobjects.exportimport.api.ImportContext;
 import org.gatein.management.portalobjects.exportimport.api.ImportHandler;
-import org.gatein.mop.api.workspace.Site;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.commons.utils.PageList;
+import org.exoplatform.commons.utils.Safe;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserHandler;
 
 /**
  * {@code PortalService}
@@ -52,6 +60,7 @@ public final class PortalService {
     private DataStorage dataStorage;
     private ExportHandler exportHandler;
     private ImportHandler importHandler;
+    private OrganizationService orgService;
 
     /**
      * Create a new instance of {@code PortalService}
@@ -60,10 +69,11 @@ public final class PortalService {
      * @param exportHandler
      * @param importHandler
      */
-    public PortalService(DataStorage dataStorage, ExportHandler exportHandler, ImportHandler importHandler) {
+    public PortalService(DataStorage dataStorage, ExportHandler exportHandler, ImportHandler importHandler, OrganizationService orgService) {
         this.dataStorage = dataStorage;
         this.exportHandler = exportHandler;
         this.importHandler = importHandler;
+        this.orgService = orgService;
     }
 
     /**
@@ -76,8 +86,9 @@ public final class PortalService {
         DataStorage dataStorage = (DataStorage) container.getComponentInstanceOfType(DataStorage.class);
         ExportHandler exportHandler = (ExportHandler) container.getComponentInstanceOfType(ExportHandler.class);
         ImportHandler importHandler = (ImportHandler) container.getComponentInstanceOfType(ImportHandler.class);
+        OrganizationService orgService = (OrganizationService) container.getComponentInstanceOfType(OrganizationService.class);
 
-        return new PortalService(dataStorage, exportHandler, importHandler);
+        return new PortalService(dataStorage, exportHandler, importHandler, orgService);
     }
 
     /**
@@ -87,7 +98,8 @@ public final class PortalService {
      * @return a collection of {@code PortalConfig}
      */
     public List<PortalConfig> getPortalConfigs(String type) {
-        return getPortalConfigs(type, null);
+        List<Page> pages = getPages(type, null);
+        return getPortalConfigs(pages);
     }
 
     /**
@@ -97,9 +109,8 @@ public final class PortalService {
      * @param name The site name (ownerId)
      * @return a list of {@code PortalConfig}
      */
-    public List<PortalConfig> getPortalConfigs(String type, String name) {
-        List<Page> pages = getPages(type, name);
-        return getPortalConfigs(pages);
+    public PortalConfig getPortalConfig(String type, String name) throws Exception {
+        return this.dataStorage.getPortalConfig(type, name);
     }
 
     /**
@@ -159,49 +170,18 @@ public final class PortalService {
     }
 
     /**
-     * Retrieve page navigations having the given portal type
-     *
-     * @param type the portal type (ownerType)
-     * @return a collection of {@code PageNavigation}
-     */
-    public List<PageNavigation> getPageNavigations(String type) {
-        return getPageNavigations(type, null);
-    }
-
-    /**
      * Retrieve page navigations having the given portal type and site name
      *
      * @param type the portal type (ownerType)
      * @param name the site name (ownerId)
-     * @return a collection of {@code PageNavigation}
+     * @return the {@code PageNavigation} for the site
      */
-    public List<PageNavigation> getPageNavigations(String type, String name) {
+    public PageNavigation getPageNavigation(String type, String name) {
         try {
-            Query<PageNavigation> query = new Query<PageNavigation>(type, name, PageNavigation.class);
-            LazyPageList<PageNavigation> results = dataStorage.find(query);
-            return results.getAll();
+            return dataStorage.getPageNavigation(type, name);
         } catch (Exception exp) {
             logger.log(Level.SEVERE, "Retrieving the list of page navigations for type: {0} -> Exception " + exp.getMessage(), type + ", name : " + name);
             exp.printStackTrace();
-        }
-
-        return Collections.EMPTY_LIST;
-    }
-
-    /**
-     * Retrieve the site having the given type and name
-     *
-     * @param type The site type (ownerType)
-     * @param name The site name (ownerId)
-     * @return the site having the given name and type
-     */
-    public Site getSiteByName(String type, String name) {
-        try {
-            Query<Site> query = new Query<Site>(type, name, Site.class);
-            LazyPageList<Site> results = dataStorage.find(query);
-            return results.getAll().isEmpty() ? null : results.getAll().get(0);
-        } catch (Exception exp) {
-            logger.log(Level.SEVERE, "Retrieving the list of sites for type {0} -> Exception " + exp.getMessage(), type);
         }
 
         return null;
@@ -215,30 +195,20 @@ public final class PortalService {
      * @param os the output stream in what the export file will be written
      * @throws IOException
      */
-    public void exportSite(String type, String name, OutputStream os) throws IOException, ProcessException {
-        ExportContext context = exportHandler.createExportContext();
+    public void exportSite(String type, String name, OutputStream os) throws Exception {
 
-        List<Page> pages = getPages(type, name);
-        List<PortalConfig> portalConfigs = getPortalConfigs(pages);
-        if (portalConfigs.isEmpty()) {
+        ExportContext context = exportHandler.createExportContext();
+        PortalConfig portalConfig = getPortalConfig(type, name);
+        if (portalConfig == null) {
             throw new ProcessException("No entry with type : " + type + " and name : " + name);
         }
+        context.addToContext(portalConfig);
 
-        List<PageNavigation> pageNavigations = getPageNavigations(type, name);
-
-        // Add portal configs to the context
-        for (PortalConfig pc : portalConfigs) {
-            context.addToContext(pc);
-        }
-        // // Add pages to the context
+        List<Page> pages = getPages(type, name);
         context.addToContext(pages);
-        //for (List<Page> pages : pagesForExport) {
-        // context.addToContext(pages);
-        //}
-        // // Add page navigations to the context
-        for (PageNavigation navigation : pageNavigations) {
-            context.addToContext(navigation);
-        }
+
+        PageNavigation pageNavigation = getPageNavigation(type, name);
+        context.addToContext(pageNavigation);
 
         // export the site
         this.exportHandler.exportContext(context, os);
@@ -265,10 +235,25 @@ public final class PortalService {
      * @param query
      * @return
      */
-    public List<String> getUsers(String query) {
+    public List<String> getUsers(String username) {
 
-        
+        List<String> usernames = new ArrayList<String>();
+        try {
+            UserHandler userHandler = orgService.getUserHandler();
+            org.exoplatform.services.organization.Query query = new org.exoplatform.services.organization.Query();
+            query.setUserName(username);
+            PageList<User> pageList = userHandler.findUsers(query);
+            ListAccess<User> users = Safe.unwrap(pageList);
+            User tmp[] = users.load(0, users.getSize());
 
-        return Collections.EMPTY_LIST;
+            for (User usr : tmp) {
+                usernames.add(usr.getUserName());
+            }
+        } catch (Exception exp) {
+            logger.log(Level.SEVERE, exp.getMessage());
+            exp.printStackTrace();
+        }
+
+        return usernames;
     }
 }

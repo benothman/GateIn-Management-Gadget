@@ -32,7 +32,6 @@ import com.google.gwt.gadgets.client.Gadget.AllowHtmlQuirksMode;
 import com.google.gwt.gadgets.client.UserPreferences;
 import com.google.gwt.gadgets.client.Gadget.ModulePrefs;
 import com.google.gwt.gadgets.client.Gadget.UseLongManifestName;
-import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -69,7 +68,7 @@ import java.util.List;
  * 
  * Creates a gadget that will show the sites tree which allows to navigate
  * between different sites. This gadget allows the administrator of the portal
- * to export and/or import files/Apps.
+ * to import/export sites.
  * 
  * Created on Dec 29, 2010, 8:01:18 PM
  * 
@@ -215,6 +214,7 @@ public class Application extends Gadget<UserPreferences> {
         Label label = new Label("Select a file to import : ");
         dialogContents.add(label);
 
+
         final Label status = new Label("");
         IUploader.OnFinishUploaderHandler onFinishUploaderHandler = new IUploader.OnFinishUploaderHandler() {
 
@@ -257,6 +257,7 @@ public class Application extends Gadget<UserPreferences> {
         absolutePanel.add(overwriteBox);
         absolutePanel.add(status, 10, 30);
 
+
         // Add a close button at the bottom of the dialog
         Button closeButton = new Button("Close", new ClickHandler() {
 
@@ -265,14 +266,10 @@ public class Application extends Gadget<UserPreferences> {
             }
         });
         dialogContents.add(closeButton);
-        if (LocaleInfo.getCurrentLocale().isRTL()) {
-            dialogContents.setCellHorizontalAlignment(
-                    closeButton, HasHorizontalAlignment.ALIGN_LEFT);
 
-        } else {
-            dialogContents.setCellHorizontalAlignment(
-                    closeButton, HasHorizontalAlignment.ALIGN_RIGHT);
-        }
+        dialogContents.setCellHorizontalAlignment(
+                closeButton, HasHorizontalAlignment.ALIGN_RIGHT);
+
 
         return dialogBox;
     }
@@ -323,13 +320,13 @@ public class Application extends Gadget<UserPreferences> {
                     public void onSuccess(TreeNode node) {
                         if (node.isExportable()) {
                             exportBtn.setEnabled(true);
-                            Application.this.exportHref = DOWNLOAD_ACTION_URL + "?ownerType=" + node.getType() + "&ownerId=" + node.getSiteName();
+                            Application.this.exportHref = DOWNLOAD_ACTION_URL + "?pc=" + getPortalContainerName() + "&ownerType=" + node.getType() + "&ownerId=" + node.getSiteName();
                         } else {
                             exportBtn.setEnabled(false);
                             Application.this.exportHref = "#";
                         }
 
-                        userHeader.setHTML(node.getSiteName());
+                        userHeader.setHTML("&raquo; User site &raquo;" + node.getSiteName());
                         userDetails.setHTML(node.getNodeInfo());
                     }
                 });

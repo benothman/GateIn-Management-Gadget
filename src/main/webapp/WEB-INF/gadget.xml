@@ -4,6 +4,6 @@
 
 	<!--gadget name="gwtGadgetLocalReference"-->
 	<gadget name="GateInManagementGadget">
-		<path>/gwtgadget/org.gatein.management.client.Application.gadget.xml</path>
+		<path>/gatein-management-gadget/org.gatein.management.client.Application.gadget.xml</path>
 	</gadget>
 </gadgets>

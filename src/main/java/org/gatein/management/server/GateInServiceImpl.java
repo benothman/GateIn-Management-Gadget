@@ -89,15 +89,15 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
                 PortalService portalService = PortalService.create(container);
                 Collection<PortalConfig> portalSites = portalService.getPortalConfigs(PortalConfig.PORTAL_TYPE);
                 Collection<PortalConfig> groupSites = portalService.getPortalConfigs(PortalConfig.GROUP_TYPE);
-                Collection<PortalConfig> userSites = portalService.getPortalConfigs(PortalConfig.USER_TYPE);
+                //Collection<PortalConfig> userSites = portalService.getPortalConfigs(PortalConfig.USER_TYPE);
                 // create root nodes
                 TreeNode portalNode = getRootNode(PortalConfig.PORTAL_TYPE, "Portal sites", portalSites);
                 TreeNode groupNode = getRootNode(PortalConfig.GROUP_TYPE, "Group sites", groupSites);
-                TreeNode userNode = getRootNode(PortalConfig.USER_TYPE, "User sites", userSites);
+                //TreeNode userNode = getRootNode(PortalConfig.USER_TYPE, "User sites", userSites);
                 List<TreeNode> nodes = new ArrayList<TreeNode>();
                 nodes.add(portalNode);
                 nodes.add(groupNode);
-                nodes.add(userNode);
+                //nodes.add(userNode);
 
                 return nodes;
             }
@@ -151,21 +151,9 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
                 List<String> users = portalService.getUsers(query);
                 Response response = new Response();
                 List<Suggestion> suggestions = new ArrayList<Suggestion>();
-
                 for (String usr : users) {
                     suggestions.add(new ItemSuggestion(usr));
                 }
-
-                suggestions.add(new ItemSuggestion("nabil"));
-                suggestions.add(new ItemSuggestion("thomas"));
-                suggestions.add(new ItemSuggestion("laurence"));
-                suggestions.add(new ItemSuggestion("warda"));
-                suggestions.add(new ItemSuggestion("nick"));
-                suggestions.add(new ItemSuggestion("nicolas"));
-                suggestions.add(new ItemSuggestion("jean-fred"));
-                suggestions.add(new ItemSuggestion("toto"));
-                suggestions.add(new ItemSuggestion("mohamed"));
-
                 response.setSuggestions(suggestions);
 
                 return response;
@@ -186,12 +174,11 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
             public TreeNode doInContainer(ExoContainer container) throws Exception {
                 PortalService portalService = PortalService.create(container);
                 TreeNode node = new TreeNode();
-                List<PortalConfig> userConf = portalService.getPortalConfigs(PortalConfig.USER_TYPE, username);
-                if (userConf.isEmpty()) {
+                PortalConfig pc = portalService.getPortalConfig(PortalConfig.USER_TYPE, username);
+                if (pc == null) {
                     node.setText("User not found");
                     node.setNodeInfo("No user with the username : " + username);
                 } else {
-                    PortalConfig pc = userConf.get(0);
                     node.setText(pc.getName());
                     node.setType(pc.getType());
                     node.setExportable(true);
@@ -210,9 +197,7 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
                 }
 
                 return node;
-
             }
         });
     }
-
 }

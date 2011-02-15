@@ -56,9 +56,9 @@
 
 
     <!-- Need to use the same realm as the portal and must run in the same server -->
-    <login-config>
+    <!--login-config>
         <auth-method>BASIC</auth-method>
         <realm-name>gatein-domain</realm-name>
-    </login-config>
+    </login-config -->
 
 </web-app>
