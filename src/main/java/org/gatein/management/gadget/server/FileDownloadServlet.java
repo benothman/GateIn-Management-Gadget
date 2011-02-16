@@ -19,12 +19,12 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.gatein.management.server;
+package org.gatein.management.gadget.server;
 
 import org.exoplatform.container.ExoContainer;
 import org.gatein.common.logging.Logger;
 import org.gatein.common.logging.LoggerFactory;
-import org.gatein.management.server.util.PortalService;
+import org.gatein.management.gadget.server.util.PortalService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Calendar;
 
-import static org.gatein.management.server.ContainerRequestHandler.doInRequest;
+import static org.gatein.management.gadget.server.ContainerRequestHandler.doInRequest;
 
 /**
  * {@code FileDownloadServlet}
@@ -63,14 +63,14 @@ public class FileDownloadServlet extends HttpServlet {
 
         final String type = request.getParameter("ownerType");
         final String name = request.getParameter("ownerId");
-        String pc = request.getParameter("pc");
+        String portalContainerName = request.getParameter("pc");
         response.setContentType("application/octet-stream; charset=UTF-8");
-        String filename = pc + "-" + type + "_" + name.replaceAll("[\\\\/><\\|\\s\"'{}()\\[\\]]+", "_") + "_" + getTimestamp() + ".zip";
+        String filename = portalContainerName + "-" + type + "_" + name.replaceAll("[\\\\/><\\|\\s\"'{}()\\[\\]]+", "_") + "_" + getTimestamp() + ".zip";
         response.setHeader("Content-disposition", "attachment; filename=\"" + filename + "\"");
 
         final OutputStream os = response.getOutputStream();
         try {
-            doInRequest(pc, new ContainerCallback<Void>() {
+            doInRequest(portalContainerName, new ContainerCallback<Void>() {
 
                 @Override
                 public Void doInContainer(ExoContainer container) throws Exception {
@@ -81,7 +81,7 @@ public class FileDownloadServlet extends HttpServlet {
             });
             os.flush();
         } catch (Exception e) {
-            log.error("Error during download.", e);
+            log.error("Error during download", e);
         } finally {
             if (os != null) {
                 os.close();
@@ -96,7 +96,7 @@ public class FileDownloadServlet extends HttpServlet {
     }
 
     /**
-     * @return a timestamp
+     * @return a timestamp with format YYYYMMDDHHMM
      */
     private String getTimestamp() {
         StringBuilder sb = new StringBuilder("");

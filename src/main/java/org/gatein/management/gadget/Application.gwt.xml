@@ -36,7 +36,7 @@
     <inherits name="gwtupload.GWTUpload"/>
 
     <!-- Specify the app entry point class.                         -->
-    <entry-point class='org.gatein.management.client.Application'/>
+    <entry-point class='org.gatein.management.gadget.client.Application'/>
 
     <!-- Specify the application specific style sheet.              -->
     <stylesheet src='Application.css' />

@@ -19,50 +19,64 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.gatein.management.server.util;
+package org.gatein.management.gadget.client;
+
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.Widget;
+import java.io.Serializable;
 
 /**
- * {@code ProcessException}
- * <p/>
- * Created on Feb 4, 2011, 10:47:24 AM
+ * {@code PendingItem}
+ * <p>
+ * Tree item representing a pending item (loading in progress)
+ * </p>
+ * Created on Dec 29, 2010, 1:25:04 PM
  *
  * @author <a href="mailto:nbenothm@redhat.com">Nabil Benothman</a>
  * @version 1.0
  */
-public class ProcessException extends Exception {
+public class PendingItem extends TreeItem implements Serializable {
 
     /**
-     * Create a new instance of {@code ProcessException}
-     */
-    public ProcessException() {
-        super();
-    }
-
-    /**
-     * Create a new instance of {@code ProcessException}
      *
-     * @param message the exception message
      */
-    public ProcessException(String message) {
-        super(message);
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Create a new instance of {@code PendingItem}
+     */
+    public PendingItem() {
+        super("Loading sub-tree...");
+        this.setStyleName("gwt-TreeItem-pending");
     }
 
     /**
-     * Create a new instance of {@code ProcessException}
-     * 
-     * @param cause the exception cause
-     */
-    public ProcessException(Throwable cause) {
-        super(cause);
-    }
-
-    /**
-     * Create a new instance of {@code ProcessException}
+     * Constructs a tree item with the given HTML.
      *
-     * @param message the exception message
-     * @param cause the exception cause
+     * @param html the item's HTML
      */
-    public ProcessException(String message, Throwable cause) {
-        super(message, cause);
+    public PendingItem(String html) {
+        this();
+    }
+
+    /**
+     * Constructs a tree item with the given HTML.
+     *
+     * @param html the item's HTML
+     */
+    public PendingItem(SafeHtml html) {
+        super(html);
+        this.setText("Loading sub-tree...");
+    }
+
+    /**
+     * Constructs a tree item with the given <code>Widget</code>.
+     *
+     * @param widget the item's widget
+     */
+    public PendingItem(Widget widget) {
+        super(widget);
+        this.setText("Loading sub-tree...");
     }
 }

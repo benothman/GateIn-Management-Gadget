@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.gatein.management.server;
+package org.gatein.management.gadget.server;
 
 import com.google.gwt.user.client.ui.SuggestOracle.Request;
 import com.google.gwt.user.client.ui.SuggestOracle.Response;
@@ -27,16 +27,16 @@ import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.portal.config.model.PortalConfig;
-import org.gatein.management.client.GateInService;
-import org.gatein.management.client.ItemSuggestion;
-import org.gatein.management.client.TreeNode;
-import org.gatein.management.server.util.PortalService;
+import org.gatein.management.gadget.client.GateInService;
+import org.gatein.management.gadget.client.ItemSuggestion;
+import org.gatein.management.gadget.client.TreeNode;
+import org.gatein.management.gadget.server.util.PortalService;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.gatein.management.server.ContainerRequestHandler.doInRequest;
+import static org.gatein.management.gadget.server.ContainerRequestHandler.doInRequest;
 
 /**
  * {@code GateInServiceImpl}
@@ -109,10 +109,12 @@ public class GateInServiceImpl extends RemoteServiceServlet implements GateInSer
     }
 
     /**
-     * 
-     * @param name
-     * @param configs
-     * @return a tree sub-root node 
+     * Create a {@code TreeNode} and attach to it it's children
+     *
+     * @param type the site type (ownerType)
+     * @param name the node name
+     * @param configs the list of sites representing the sub-nodes
+     * @return a {@code TreeNode}
      */
     private TreeNode getRootNode(String type, String name, Collection<PortalConfig> configs) {
 

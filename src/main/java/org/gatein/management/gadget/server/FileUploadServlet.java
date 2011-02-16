@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.gatein.management.server;
+package org.gatein.management.gadget.server;
 
 import gwtupload.server.UploadAction;
 import gwtupload.server.exceptions.UploadActionException;
@@ -27,8 +27,8 @@ import org.apache.commons.fileupload.FileItem;
 import org.exoplatform.container.ExoContainer;
 import org.gatein.common.logging.Logger;
 import org.gatein.common.logging.LoggerFactory;
-import org.gatein.management.server.util.PortalService;
-import org.gatein.management.server.util.ProcessException;
+import org.gatein.management.gadget.server.util.PortalService;
+import org.gatein.management.gadget.server.util.ProcessException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,7 +39,7 @@ import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.List;
 
-import static org.gatein.management.server.ContainerRequestHandler.doInRequest;
+import static org.gatein.management.gadget.server.ContainerRequestHandler.doInRequest;
 
 /**
  * {@code FileUploadServlet}
@@ -67,20 +67,20 @@ public class FileUploadServlet extends UploadAction {
      */
     @Override
     public String executeAction(HttpServletRequest request, List<FileItem> sessionFiles) throws UploadActionException {
-        String response = "";
+        StringBuilder response = new StringBuilder("<response>\n");
         int cont = 0;
         for (FileItem item : sessionFiles) {
             //if (false == item.isFormField()) {
             if (!item.isFormField()) {
                 cont++;
                 try {
-                    /// Create a new file based on the remote file name in the client
+                    // Create a new file based on the remote file name in the client
                     String saveName = item.getName().replaceAll("[\\\\/><\\|\\s\"'{}()\\[\\]]+", "_");
-                    /// Create a temporary file placed in the default system temp folder
-
+                    // Create a temporary file placed in the default system temp folder
                     File file = File.createTempFile(saveName, ".zip");
                     item.write(file);
-                    /// Save a list with the received files
+
+                    // Save a list with the received files
                     receivedFiles.put(item.getFieldName(), file);
                     receivedContentTypes.put(item.getFieldName(), item.getContentType());
 
@@ -89,22 +89,22 @@ public class FileUploadServlet extends UploadAction {
 
                     // process the uploaded file
                     processImport(request.getParameter("pc"), new FileInputStream(file), overwrite);
-                    /// Compose a xml message with the full file information which can be parsed in client side
-                    response += "<file-" + cont + "-field>" + item.getFieldName() + "</file-" + cont + "-field>\n";
-                    response += "<file-" + cont + "-name>" + item.getName() + "</file-" + cont + "-name>\n";
-                    response += "<file-" + cont + "-size>" + item.getSize() + "</file-" + cont + "-size>\n";
-                    response += "<file-" + cont + "-type>" + item.getContentType() + "</file-" + cont + "type>\n";
+                    // Compose a xml message with the full file information which can be parsed in client side
+                    response.append("<file-").append(cont).append("-field>").append(item.getFieldName()).append("</file-").append(cont).append("-field>\n");
+                    response.append("<file-").append(cont).append("-name>").append(item.getName()).append("</file-").append(cont).append("-name>\n");
+                    response.append("<file-").append(cont).append("-size>").append(item.getSize()).append("</file-").append(cont).append("-size>\n");
+                    response.append("<file-").append(cont).append("-type>").append(item.getContentType()).append("</file-").append(cont).append("type>\n");
                 } catch (Exception e) {
                     throw new UploadActionException(e);
                 }
             }
         }
 
-        /// Remove files from session because we have a copy of them
+        // Remove files from session because we have a copy of them
         removeSessionFileItems(request);
 
-        /// Send information of the received files to the client.
-        return "<response>\n" + response + "</response>\n";
+        // Send information of the received files to the client.
+        return response.append("</response>\n").toString();
     }
 
     /**
@@ -156,7 +156,7 @@ public class FileUploadServlet extends UploadAction {
                     return null;
                 } catch (Exception ex) {
                     log.error("Error during import.", ex);
-                    throw new ProcessException("Import process failed. See server log for more details.");
+                    throw new ProcessException("Import process failed", ex);
                 }
             }
         });

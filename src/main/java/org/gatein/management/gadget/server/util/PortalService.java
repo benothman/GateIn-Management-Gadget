@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.gatein.management.server.util;
+package org.gatein.management.gadget.server.util;
 
 import org.exoplatform.commons.utils.LazyPageList;
 import org.exoplatform.container.ExoContainer;
@@ -165,8 +165,9 @@ public final class PortalService {
             LazyPageList<Page> results = dataStorage.find(query);
             return results.getAll();
         } catch (Exception exp) {
-            logger.log(Level.SEVERE, "Retrieving the list of pages for type: {0} -> Exception " + exp.getMessage(), type + ", name : " + name);
-            exp.printStackTrace();
+            logger.log(Level.SEVERE,
+                    "Error occurs while retrieving the list of pages for type : "
+                    + type + " and name : " + name, exp);
         }
 
         return Collections.EMPTY_LIST;
@@ -183,8 +184,9 @@ public final class PortalService {
         try {
             return dataStorage.getPageNavigation(type, name);
         } catch (Exception exp) {
-            logger.log(Level.SEVERE, "Retrieving the list of page navigations for type: {0} -> Exception " + exp.getMessage(), type + ", name : " + name);
-            exp.printStackTrace();
+            logger.log(Level.SEVERE,
+                    "Error occurs while retrieving the list of page navigations for type : "
+                    + type + " and name : " + name, exp);
         }
 
         return null;
@@ -254,8 +256,9 @@ public final class PortalService {
                 usernames.add(usr.getUserName());
             }
         } catch (Exception exp) {
-            logger.log(Level.SEVERE, exp.getMessage());
-            exp.printStackTrace();
+            logger.log(Level.SEVERE,
+                    "Error occurs while retrieving the list of usernames containing '"
+                    + username + "'", exp);
         }
 
         return usernames;

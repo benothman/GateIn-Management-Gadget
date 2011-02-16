@@ -78,7 +78,7 @@ To install the application, follow the instructions below:
 9) Follow the GateIn tutorial to register the gadget and add it to a page.
 
    * Add the gadget as remote one using the url :
-     http://localhost:8080/gwtgadget/gwtgadget/org.gatein.management.client.Application.gadget.xml
+     http://localhost:8080/gatein-management-gadget/gwtgadget/org.gatein.management.gadget.client.Application.gadget.xml
    
    * To see how to use GWT gadgets with GateIn, you can refer to the example below:
      http://community.jboss.org/wiki/GWTGadgetaccessingPortalServices

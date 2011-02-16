@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.gatein.management.client;
+package org.gatein.management.gadget.client;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.core.client.GWT;
@@ -61,7 +61,6 @@ import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import gwtupload.client.IUploadStatus.Status;
 import gwtupload.client.IUploader;
 import gwtupload.client.MultiUploader;
 import java.util.List;
@@ -78,7 +77,8 @@ import java.util.List;
  * @author <a href="mailto:nbenothm@redhat.com">Nabil Benothman</a>
  * @version 1.0
  */
-@ModulePrefs(title = "GateIn Management", author = "Nabil Benothman", author_email = "nbenothm@redhat.com", description = "This gadget allows the administrator to export/import sites")
+@ModulePrefs(title = "GateIn Management", author = "Nabil Benothman", author_email = "nbenothm@redhat.com",
+description = "This gadget allows the administrator to export/import sites")
 @UseLongManifestName(true)
 @AllowHtmlQuirksMode(true)
 public class Application extends Gadget<UserPreferences> {
@@ -114,12 +114,12 @@ public class Application extends Gadget<UserPreferences> {
         absolutePanel.add(decoratorPanelWest, 10, 10);
         decoratorPanelWest.setSize("240px", "400px");
 
-        AbsolutePanel absolutePanel_1 = new AbsolutePanel();
-        absolutePanel_1.setSize("230px", "395px");
-        decoratorPanelWest.setWidget(absolutePanel_1);
+        AbsolutePanel treePanel = new AbsolutePanel();
+        treePanel.setSize("230px", "395px");
+        decoratorPanelWest.setWidget(treePanel);
 
         ScrollPanel treeScrollPanel = new ScrollPanel();
-        absolutePanel_1.add(treeScrollPanel, 10, 10);
+        treePanel.add(treeScrollPanel, 10, 10);
         treeScrollPanel.setSize("210px", "375px");
 
         final Tree tree = getTree(images);
@@ -245,7 +245,6 @@ public class Application extends Gadget<UserPreferences> {
                         status.setStyleName("warn-style");
                         statusIcon.setStyleName("warn-style-icon");
                         break;
-
                     default:
                         status.setText("");
                         status.setStyleName("blank-style");
@@ -271,9 +270,6 @@ public class Application extends Gadget<UserPreferences> {
         // You can add customized parameters to servlet call
         uploader.setServletPath(UPLOAD_ACTION_URL + "?pc=" + getPortalContainerName());
         uploader.avoidRepeatFiles(true);
-        
-
-
         dialogContents.add(uploader);
 
         AbsolutePanel absolutePanel = new AbsolutePanel();
@@ -302,10 +298,7 @@ public class Application extends Gadget<UserPreferences> {
             }
         });
         dialogContents.add(closeButton);
-
-        dialogContents.setCellHorizontalAlignment(
-                closeButton, HasHorizontalAlignment.ALIGN_RIGHT);
-
+        dialogContents.setCellHorizontalAlignment(closeButton, HasHorizontalAlignment.ALIGN_RIGHT);
 
         return dialogBox;
     }
@@ -418,7 +411,6 @@ public class Application extends Gadget<UserPreferences> {
         final TreeItem rootItem = createItem(rootNode);
         tree.addItem(rootItem);
 
-
         gtnService.getRootNodes(getPortalContainerName(), new AsyncCallback<List<TreeNode>>() {
 
             public void onFailure(Throwable caught) {
@@ -453,16 +445,13 @@ public class Application extends Gadget<UserPreferences> {
         hPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
         hPanel.add(new Image(image));
         HTML headerText = new HTML(text);
-        // nabil, intellij was flagging this as a style not used, so i commented out
-        // headerText.setStyleName("cw-StackPanelHeader");
         hPanel.add(headerText);
-
         // Return the HTML string for the panel
         return hPanel.getElement().getString();
     }
 
     /**
-     * Create an {@code TreeItem} and set it's user object
+     * Create a {@code TreeItem} and set it's user object
      *
      * @param tn The user object of the {@code TreeItem}
      * @return {@code TreeItem}
@@ -558,11 +547,10 @@ public class Application extends Gadget<UserPreferences> {
         CloseHandler<TreeItem> closeHandler = new CloseHandler<TreeItem>() {
 
             public void onClose(CloseEvent<TreeItem> event) {
-                GWT.log("closing item " + event.getTarget().getText());
+                // nothing to do
             }
         };
 
         return closeHandler;
-
     }
 }

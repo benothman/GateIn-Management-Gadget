@@ -19,64 +19,51 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.gatein.management.client;
+package org.gatein.management.gadget.client;
 
-import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.user.client.ui.TreeItem;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.rpc.IsSerializable;
+import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
 import java.io.Serializable;
 
 /**
- * {@code PendingItem}
- * <p>
- * Tree item representing a pending item (loading in progress)
- * </p>
- * Created on Dec 29, 2010, 1:25:04 PM
+ * {@code ItemSuggestion}
+ * <p/>
+ * Created on Feb 10, 2011, 12:42:05 PM
  *
  * @author <a href="mailto:nbenothm@redhat.com">Nabil Benothman</a>
  * @version 1.0
  */
-public class PendingItem extends TreeItem implements Serializable {
+public class ItemSuggestion implements IsSerializable, Suggestion, Serializable {
+
+    private String value;
 
     /**
-     *
+     * Create a new instance of {@code ItemSuggestion}
      */
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * Create a new instance of {@code PendingItem}
-     */
-    public PendingItem() {
-        super("Loading sub-tree...");
-        this.setStyleName("gwt-TreeItem-pending");
+    public ItemSuggestion() {
+        this("");
     }
 
     /**
-     * Constructs a tree item with the given HTML.
-     *
-     * @param html the item's HTML
+     * Create a new instance of {@code ItemSuggestion}
+     * 
+     * @param value
      */
-    public PendingItem(String html) {
-        this();
+    public ItemSuggestion(String value) {
+        this.value = value;
     }
 
     /**
-     * Constructs a tree item with the given HTML.
-     *
-     * @param html the item's HTML
+     * @return the string which will be displayed
      */
-    public PendingItem(SafeHtml html) {
-        super(html);
-        this.setText("Loading sub-tree...");
+    public String getDisplayString() {
+        return this.value;
     }
 
     /**
-     * Constructs a tree item with the given <code>Widget</code>.
-     *
-     * @param widget the item's widget
+     * @return the string replacement
      */
-    public PendingItem(Widget widget) {
-        super(widget);
-        this.setText("Loading sub-tree...");
+    public String getReplacementString() {
+        return this.value;
     }
 }

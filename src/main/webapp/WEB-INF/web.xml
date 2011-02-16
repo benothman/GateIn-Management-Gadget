@@ -44,16 +44,16 @@
     <!-- GateIn service servlet -->
     <servlet>
         <servlet-name>gtnService</servlet-name>
-        <servlet-class>org.gatein.management.server.GateInServiceImpl</servlet-class>
+        <servlet-class>org.gatein.management.gadget.server.GateInServiceImpl</servlet-class>
     </servlet>
     <!-- file upload servlet-->
     <servlet>
         <servlet-name>uploadServlet</servlet-name>
-        <servlet-class>org.gatein.management.server.FileUploadServlet</servlet-class>
+        <servlet-class>org.gatein.management.gadget.server.FileUploadServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>downloadServlet</servlet-name>
-        <servlet-class>org.gatein.management.server.FileDownloadServlet</servlet-class>
+        <servlet-class>org.gatein.management.gadget.server.FileDownloadServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>

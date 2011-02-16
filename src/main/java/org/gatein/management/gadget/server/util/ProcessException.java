@@ -19,51 +19,50 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.gatein.management.client;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
-import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
-import java.io.Serializable;
+package org.gatein.management.gadget.server.util;
 
 /**
- * {@code ItemSuggestion}
+ * {@code ProcessException}
  * <p/>
- * Created on Feb 10, 2011, 12:42:05 PM
+ * Created on Feb 4, 2011, 10:47:24 AM
  *
  * @author <a href="mailto:nbenothm@redhat.com">Nabil Benothman</a>
  * @version 1.0
  */
-public class ItemSuggestion implements IsSerializable, Suggestion, Serializable {
-
-    private String value;
+public class ProcessException extends Exception {
 
     /**
-     * Create a new instance of {@code ItemSuggestion}
+     * Create a new instance of {@code ProcessException}
      */
-    public ItemSuggestion() {
-        this("");
+    public ProcessException() {
+        super();
     }
 
     /**
-     * Create a new instance of {@code ItemSuggestion}
+     * Create a new instance of {@code ProcessException}
+     *
+     * @param message the exception message
+     */
+    public ProcessException(String message) {
+        super(message);
+    }
+
+    /**
+     * Create a new instance of {@code ProcessException}
      * 
-     * @param value
+     * @param cause the exception cause
      */
-    public ItemSuggestion(String value) {
-        this.value = value;
+    public ProcessException(Throwable cause) {
+        super(cause);
     }
 
     /**
-     * @return the string which will be displayed
+     * Create a new instance of {@code ProcessException}
+     *
+     * @param message the exception message
+     * @param cause the exception cause
      */
-    public String getDisplayString() {
-        return this.value;
-    }
-
-    /**
-     * @return the string replacement
-     */
-    public String getReplacementString() {
-        return this.value;
+    public ProcessException(String message, Throwable cause) {
+        super(message, cause);
     }
 }
