@@ -77,6 +77,7 @@ public class FileUploadServlet extends UploadAction {
                     /// Create a new file based on the remote file name in the client
                     String saveName = item.getName().replaceAll("[\\\\/><\\|\\s\"'{}()\\[\\]]+", "_");
                     /// Create a temporary file placed in the default system temp folder
+
                     File file = File.createTempFile(saveName, ".zip");
                     item.write(file);
                     /// Save a list with the received files
@@ -93,8 +94,6 @@ public class FileUploadServlet extends UploadAction {
                     response += "<file-" + cont + "-name>" + item.getName() + "</file-" + cont + "-name>\n";
                     response += "<file-" + cont + "-size>" + item.getSize() + "</file-" + cont + "-size>\n";
                     response += "<file-" + cont + "-type>" + item.getContentType() + "</file-" + cont + "type>\n";
-                } catch (ProcessException e) {
-                    throw new UploadActionException(e);
                 } catch (Exception e) {
                     throw new UploadActionException(e);
                 }

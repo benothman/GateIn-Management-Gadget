@@ -216,40 +216,72 @@ public class Application extends Gadget<UserPreferences> {
         // Add some text to the top of the dialog
         Label label = new Label("Select a file to import : ");
         dialogContents.add(label);
-
-
-        final Label status = new Label("");
-        IUploader.OnFinishUploaderHandler onFinishUploaderHandler = new IUploader.OnFinishUploaderHandler() {
-
-            public void onFinish(IUploader uploader) {
-                if (uploader.getStatus() == Status.SUCCESS) {
-                    status.setText("File uploaded with success");
-                    status.setStyleName("success-style");
-                } else if (uploader.getStatus() == Status.ERROR) {
-                    status.setText("File upload error");
-                    status.setStyleName("error-style");
-                }
-            }
-        };
+        final HTML status = new HTML("");
+        final HTML statusIcon = new HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+        status.setStyleName("blank-style");
+        statusIcon.setStyleName("blank-style");
+        statusIcon.setSize("40px", "40px");
+        final CheckBox overwriteBox = new CheckBox("Overwrite existing site");
 
         final MultiUploader uploader = new MultiUploader();
-        // Add a finish handler which will load the image once the upload finishes
-        uploader.addOnFinishUploadHandler(onFinishUploaderHandler);
+        // Add a finish handler which will notify user once the upload finishes
+        uploader.addOnFinishUploadHandler(new IUploader.OnFinishUploaderHandler() {
+
+            public void onFinish(IUploader uploader) {
+
+                switch (uploader.getStatus()) {
+                    case SUCCESS:
+                        status.setText("File uploaded with success");
+                        status.setStyleName("success-style");
+                        statusIcon.setStyleName("success-style-icon");
+                        break;
+                    case ERROR:
+                        status.setText("File upload error");
+                        status.setStyleName("error-style");
+                        statusIcon.setStyleName("error-style-icon");
+                        break;
+                    case CANCELED:
+                        status.setText("File upload canceled");
+                        status.setStyleName("warn-style");
+                        statusIcon.setStyleName("warn-style-icon");
+                        break;
+
+                    default:
+                        status.setText("");
+                        status.setStyleName("blank-style");
+                        statusIcon.setStyleName("blank-style");
+                        break;
+                }
+
+                overwriteBox.setEnabled(true);
+            }
+        });
+        // Add a start handler which will disable the UI until the upload finishes
+        uploader.addOnStartUploadHandler(new IUploader.OnStartUploaderHandler() {
+
+            public void onStart(IUploader uploader) {
+                status.setText("Process in progress...");
+                status.setStyleName("progress-style");
+                statusIcon.setStyleName("progress-style-icon");
+                overwriteBox.setEnabled(false);
+            }
+        });
         // accept only zip files
         uploader.setValidExtensions(new String[]{"zip"});
         // You can add customized parameters to servlet call
         uploader.setServletPath(UPLOAD_ACTION_URL + "?pc=" + getPortalContainerName());
         uploader.avoidRepeatFiles(true);
+        
+
 
         dialogContents.add(uploader);
 
         AbsolutePanel absolutePanel = new AbsolutePanel();
-        absolutePanel.setSize("400px", "60px");
+        absolutePanel.setSize("400px", "100px");
         dialogContents.add(absolutePanel);
         dialogContents.setCellHorizontalAlignment(
                 absolutePanel, HasHorizontalAlignment.ALIGN_LEFT);
 
-        final CheckBox overwriteBox = new CheckBox("Overwrite existing site");
         overwriteBox.setTitle("If you want to force overwriting an existing site, check this checkbox");
         overwriteBox.addClickHandler(new ClickHandler() {
 
@@ -258,9 +290,9 @@ public class Application extends Gadget<UserPreferences> {
                 uploader.setServletPath(url);
             }
         });
-        absolutePanel.add(overwriteBox);
-        absolutePanel.add(status, 10, 30);
-
+        absolutePanel.add(overwriteBox, 10, 20);
+        absolutePanel.add(statusIcon, 20, 50);
+        absolutePanel.add(status, 60, 55);
 
         // Add a close button at the bottom of the dialog
         Button closeButton = new Button("Close", new ClickHandler() {

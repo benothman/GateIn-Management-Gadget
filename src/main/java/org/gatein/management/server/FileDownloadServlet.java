@@ -64,9 +64,8 @@ public class FileDownloadServlet extends HttpServlet {
         final String type = request.getParameter("ownerType");
         final String name = request.getParameter("ownerId");
         String pc = request.getParameter("pc");
-
         response.setContentType("application/octet-stream; charset=UTF-8");
-        String filename = type + "_" + name + "_" + getTimestamp() + ".zip";
+        String filename = pc + "-" + type + "_" + name.replaceAll("[\\\\/><\\|\\s\"'{}()\\[\\]]+", "_") + "_" + getTimestamp() + ".zip";
         response.setHeader("Content-disposition", "attachment; filename=\"" + filename + "\"");
 
         final OutputStream os = response.getOutputStream();
